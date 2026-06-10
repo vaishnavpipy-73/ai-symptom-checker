@@ -59,39 +59,80 @@
       
       <!-- Column 1: Clickable SVG Anatomical Human body map (Left) -->
       <div class="card" style="text-align: center; display: flex; flex-direction: column; gap: 0.75rem;">
-        <span class="form-label" style="text-align: center; display: block; margin-bottom: 0.5rem;">Anatomical Filter</span>
+        <span class="form-label" style="text-align: center; display: block; margin-bottom: 0.25rem;">Anatomical Filter</span>
         
-        <div class="body-map-container">
-          <svg class="body-map-svg" viewBox="0 0 100 220" xmlns="http://www.w3.org/2000/svg">
-            <!-- Head & Neck -->
-            <path d="M42,10 C42,4 58,4 58,10 C58,15 54,20 50,22 C46,20 42,15 42,10" 
-                  class="body-part-path" id="part-head" onclick="selectBodyPart('head')" title="Head & Neck"></path>
-            <!-- Neck connection -->
-            <rect x="47" y="22" width="6" height="5" class="body-part-path" id="part-neck" onclick="selectBodyPart('head')"></rect>
+        <!-- Toggle Control -->
+        <div class="segmented-control" style="margin-bottom: 0.25rem;">
+          <button onclick="toggleAnatomicalView('front')" class="segmented-btn active" id="view-front-btn">Front</button>
+          <button onclick="toggleAnatomicalView('back')" class="segmented-btn" id="view-back-btn">Back</button>
+        </div>
+
+        <div class="body-map-svg-wrapper">
+          <div class="body-map-svg-card" id="body-map-card">
+            <!-- Front View -->
+            <div class="body-map-front">
+              <svg class="body-map-svg" viewBox="0 0 100 220" xmlns="http://www.w3.org/2000/svg">
+                <!-- Head & Neck -->
+                <path d="M42,10 C42,4 58,4 58,10 C58,15 54,20 50,22 C46,20 42,15 42,10" 
+                      class="body-part-path" id="part-head" onclick="selectBodyPart('head')" title="Head & Neck"></path>
+                <rect x="47" y="22" width="6" height="5" class="body-part-path" id="part-neck" onclick="selectBodyPart('head')"></rect>
+                
+                <!-- Chest / Upper Torso -->
+                <path d="M30,27 L70,27 L72,55 L65,70 L35,70 L28,55 Z" 
+                      class="body-part-path" id="part-chest" onclick="selectBodyPart('chest')" title="Chest & Lungs"></path>
+                
+                <!-- Abdomen / Pelvis -->
+                <path d="M35,70 L65,70 L68,110 L32,110 Z" 
+                      class="body-part-path" id="part-abdomen" onclick="selectBodyPart('abdomen')" title="Gastrointestinal / Pelvis"></path>
+                
+                <!-- Left Arm -->
+                <path d="M28,27 L18,50 L12,85 L18,87 L24,53 L28,45 Z" 
+                      class="body-part-path" id="part-larm" onclick="selectBodyPart('limbs')" title="Limbs (Arms/Legs)"></path>
+                <!-- Right Arm -->
+                <path d="M72,27 L82,50 L88,85 L82,87 L76,53 L72,45 Z" 
+                      class="body-part-path" id="part-rarm" onclick="selectBodyPart('limbs')" title="Limbs (Arms/Legs)"></path>
+                
+                <!-- Left Leg -->
+                <path d="M32,110 L36,160 L39,210 L31,212 L27,162 L32,110" 
+                      class="body-part-path" id="part-lleg" onclick="selectBodyPart('limbs')" title="Limbs (Arms/Legs)"></path>
+                <!-- Right Leg -->
+                <path d="M68,110 L64,160 L61,210 L69,212 L73,162 L68,110" 
+                      class="body-part-path" id="part-rleg" onclick="selectBodyPart('limbs')" title="Limbs (Arms/Legs)"></path>
+              </svg>
+            </div>
             
-            <!-- Chest / Upper Torso -->
-            <path d="M30,27 L70,27 L72,55 L65,70 L35,70 L28,55 Z" 
-                  class="body-part-path" id="part-chest" onclick="selectBodyPart('chest')" title="Chest & Lungs"></path>
-            
-            <!-- Abdomen / Pelvis -->
-            <path d="M35,70 L65,70 L68,110 L32,110 Z" 
-                  class="body-part-path" id="part-abdomen" onclick="selectBodyPart('abdomen')" title="Gastrointestinal / Pelvis"></path>
-            
-            <!-- Limbs (Arms & Legs) -->
-            <!-- Left Arm -->
-            <path d="M28,27 L18,50 L12,85 L18,87 L24,53 L28,45 Z" 
-                  class="body-part-path" id="part-larm" onclick="selectBodyPart('limbs')" title="Limbs (Arms/Legs)"></path>
-            <!-- Right Arm -->
-            <path d="M72,27 L82,50 L88,85 L82,87 L76,53 L72,45 Z" 
-                  class="body-part-path" id="part-rarm" onclick="selectBodyPart('limbs')" title="Limbs (Arms/Legs)"></path>
-            
-            <!-- Left Leg -->
-            <path d="M32,110 L36,160 L39,210 L31,212 L27,162 L32,110" 
-                  class="body-part-path" id="part-lleg" onclick="selectBodyPart('limbs')" title="Limbs (Arms/Legs)"></path>
-            <!-- Right Leg -->
-            <path d="M68,110 L64,160 L61,210 L69,212 L73,162 L68,110" 
-                  class="body-part-path" id="part-rleg" onclick="selectBodyPart('limbs')" title="Limbs (Arms/Legs)"></path>
-          </svg>
+            <!-- Back View -->
+            <div class="body-map-back">
+              <svg class="body-map-svg" viewBox="0 0 100 220" xmlns="http://www.w3.org/2000/svg">
+                <!-- Back of Head / Neck -->
+                <path d="M42,10 C42,4 58,4 58,10 C58,15 54,20 50,22 C46,20 42,15 42,10" 
+                      class="body-part-path" id="part-back-head" onclick="selectBodyPart('head')" title="Back Head & Neck"></path>
+                <rect x="47" y="22" width="6" height="5" class="body-part-path" id="part-back-neck" onclick="selectBodyPart('head')"></rect>
+                
+                <!-- Upper Back / Spine -->
+                <path d="M30,27 L70,27 L72,55 L65,70 L35,70 L28,55 Z" 
+                      class="body-part-path" id="part-back-chest" onclick="selectBodyPart('chest')" title="Upper Back / Spine"></path>
+                
+                <!-- Lower Back / Lumbar -->
+                <path d="M35,70 L65,70 L68,110 L32,110 Z" 
+                      class="body-part-path" id="part-back-abdomen" onclick="selectBodyPart('abdomen')" title="Lower Back / Lumbar"></path>
+                
+                <!-- Left Arm (Back) -->
+                <path d="M28,27 L18,50 L12,85 L18,87 L24,53 L28,45 Z" 
+                      class="body-part-path" id="part-back-larm" onclick="selectBodyPart('limbs')" title="Limbs (Arms/Legs)"></path>
+                <!-- Right Arm (Back) -->
+                <path d="M72,27 L82,50 L88,85 L82,87 L76,53 L72,45 Z" 
+                      class="body-part-path" id="part-back-rarm" onclick="selectBodyPart('limbs')" title="Limbs (Arms/Legs)"></path>
+                
+                <!-- Left Leg (Back) -->
+                <path d="M32,110 L36,160 L39,210 L31,212 L27,162 L32,110" 
+                      class="body-part-path" id="part-back-lleg" onclick="selectBodyPart('limbs')" title="Limbs (Arms/Legs)"></path>
+                <!-- Right Leg (Back) -->
+                <path d="M68,110 L64,160 L61,210 L69,212 L73,162 L68,110" 
+                      class="body-part-path" id="part-back-rleg" onclick="selectBodyPart('limbs')" title="Limbs (Arms/Legs)"></path>
+              </svg>
+            </div>
+          </div>
         </div>
 
         <button onclick="selectBodyPart('all')" class="btn btn-secondary" style="font-size: 0.55rem; width: 100%; border-radius: 8px;" id="reset-part-btn">
@@ -228,6 +269,17 @@
     let patientGender = "female";
     let patientDuration = "medium";
     let selectedBodyPart = "all";
+    let currentAnatomicalView = "front";
+
+    function toggleAnatomicalView(view) {
+      currentAnatomicalView = view;
+      const card = document.getElementById("body-map-card");
+      if (card) {
+        card.classList.toggle("flipped", view === 'back');
+      }
+      document.getElementById("view-front-btn").classList.toggle("active", view === 'front');
+      document.getElementById("view-back-btn").classList.toggle("active", view === 'back');
+    }
 
     document.addEventListener("DOMContentLoaded", () => {
       renderCategoryPicker();
@@ -265,12 +317,12 @@
     function selectBodyPart(part) {
       selectedBodyPart = part;
       
-      // Highlight SVG Paths
+      // Highlight SVG Paths (both front and back IDs)
       const mapPaths = {
-        head: ["part-head", "part-neck"],
-        chest: ["part-chest"],
-        abdomen: ["part-abdomen"],
-        limbs: ["part-larm", "part-rarm", "part-lleg", "part-rleg"]
+        head: ["part-head", "part-neck", "part-back-head", "part-back-neck"],
+        chest: ["part-chest", "part-back-chest"],
+        abdomen: ["part-abdomen", "part-back-abdomen"],
+        limbs: ["part-larm", "part-rarm", "part-lleg", "part-rleg", "part-back-larm", "part-back-rarm", "part-back-lleg", "part-back-rleg"]
       };
 
       // Reset all outlines
@@ -483,7 +535,20 @@
       const area = document.getElementById("results-display-area");
       if (!area) return;
 
-      let html = `<h2 style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.75rem; width: 100%;">Condition Probability Matches</h2>`;
+      const triage = calculateTriageUrgency(selectedSymptomIds);
+      
+      let html = `
+        <div class="triage-meter ${triage.colorClass}">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Clinical Triage Level</span>
+            <span class="triage-badge" style="background-color: ${triage.badgeColor}; color: #ffffff;">${triage.label}</span>
+          </div>
+          <p style="font-size: 0.65rem; color: var(--text-main); font-weight: 600; line-height: 1.4; margin-top: 0.15rem;">
+            ${triage.description}
+          </p>
+        </div>
+        <h2 style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.75rem; width: 100%;">Condition Probability Matches</h2>
+      `;
       
       preds.forEach((pred, idx) => {
         const topClass = idx === 0 ? "pred-card-top" : "";
@@ -496,16 +561,61 @@
              </div>`
           : "";
 
-        // Math log transparency audit block
+        // Math log transparency audit block (Bayesian Visualizer)
         const auditLogHtml = `
           <details style="margin-top: 0.35rem; border-top: 1px dashed var(--card-border); padding-top: 0.35rem;">
-            <summary style="font-size: 0.55rem; color: var(--color-primary); cursor: pointer; font-weight: 700;">Mathematical Audit Trail</summary>
-            <div class="math-log-card">
-              <div><span class="math-log-title">Prior log P(D):</span> ${pred.audit.priorLog}</div>
-              <div><span class="math-log-title">Likelihood log P(S|D):</span> ${pred.audit.likelihoodLog}</div>
-              <div><span class="math-log-title">Posterior score:</span> ${pred.audit.scoreLog}</div>
-              <div><span class="math-log-title">Criteria Met:</span> ${pred.audit.matched.length > 0 ? pred.audit.matched.join(', ') : 'None'}</div>
-              <div><span class="math-log-title">Criteria Missed:</span> ${pred.audit.missed.length > 0 ? pred.audit.missed.join(', ') : 'None'}</div>
+            <summary style="font-size: 0.55rem; color: var(--color-primary); cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 0.25rem;">
+              <span>🧮</span> Bayesian Formula Breakdown
+            </summary>
+            <div class="math-log-card" style="padding: 0.85rem; border-radius: 12px; border: 1px solid var(--card-border); background: var(--bg-secondary); margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem; font-family: monospace;">
+              
+              <div style="text-align: center; border-bottom: 1px solid var(--card-border); padding-bottom: 0.5rem; margin-bottom: 0.25rem;">
+                <div style="font-size: 0.725rem; font-weight: 700; font-family: 'Inter', sans-serif; color: var(--text-main);">
+                  Posterior = Prior &times; Likelihood
+                </div>
+                <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.15rem;">
+                  P(D|S) = P(D) &times; P(S|D)
+                </div>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.6rem;">
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="font-weight: 700; color: var(--color-primary);">1. Prior Log [log P(D)]</span>
+                  <span style="font-weight: 800;">${pred.audit.priorLog}</span>
+                </div>
+                <p style="font-size: 0.55rem; color: var(--text-muted); line-height: 1.3; font-family: sans-serif;">
+                  Adjusted by: Age <b>${patientAgeGroup}</b>, Gender <b>${patientGender}</b>, Duration <b>${patientDuration}</b>.
+                </p>
+                
+                <div style="display: flex; justify-content: space-between; margin-top: 0.2rem;">
+                  <span style="font-weight: 700; color: var(--color-secondary);">2. Likelihood Log [log P(S|D)]</span>
+                  <span style="font-weight: 800;">${pred.audit.likelihoodLog}</span>
+                </div>
+                <p style="font-size: 0.55rem; color: var(--text-muted); line-height: 1.3; font-family: sans-serif;">
+                  Matches add log(0.85); absent elements add log(0.95).
+                </p>
+
+                <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--card-border); padding-top: 0.35rem; margin-top: 0.2rem;">
+                  <span style="font-weight: 800; color: var(--text-main);">3. Joint Log Score</span>
+                  <span style="font-weight: 800; color: var(--color-primary);">${pred.audit.scoreLog}</span>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; border-top: 1px dashed var(--card-border); padding-top: 0.5rem; margin-top: 0.25rem;">
+                <div>
+                  <span style="font-size: 0.55rem; font-weight: 700; color: var(--color-success); text-transform: uppercase; font-family: sans-serif;">Matches</span>
+                  <div style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;">
+                    ${pred.audit.matched.length > 0 ? pred.audit.matched.join(', ') : 'None'}
+                  </div>
+                </div>
+                <div>
+                  <span style="font-size: 0.55rem; font-weight: 700; color: var(--color-danger); text-transform: uppercase; font-family: sans-serif;">Missed</span>
+                  <div style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;">
+                    ${pred.audit.missed.length > 0 ? pred.audit.missed.join(', ') : 'None'}
+                  </div>
+                </div>
+              </div>
+
             </div>
           </details>
         `;

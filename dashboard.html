@@ -36,6 +36,7 @@
   </style>
   <script src="js/dataset.js"></script>
   <script src="js/db.js"></script>
+  <script src="js/mlClassifier.js"></script>
   <script>
     // Auth Guard
     (function() {
@@ -231,6 +232,8 @@
         const top = rep.predictions.length > 0 ? rep.predictions[0] : null;
         const formattedDate = new Date(rep.date).toLocaleDateString(undefined, { month: "short", day: "numeric" });
         
+        const triage = calculateTriageUrgency(rep.symptoms);
+        
         const tags = rep.symptoms.slice(0, 3).map(sId => {
           const sym = symptomsList.find(s => s.id === sId);
           return `<span style="font-size: 0.55rem; background-color: var(--bg-secondary); border: 1px solid var(--card-border); padding: 0.1rem 0.35rem; border-radius: 6px; color: var(--text-main); font-weight: 600;">${sym ? sym.name : sId}</span>`;
@@ -241,9 +244,10 @@
         html += `
           <div class="history-row">
             <div style="text-align: left; display: flex; flex-direction: column; gap: 0.2rem; max-width: 65%;">
-              <div style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.6rem; color: var(--text-muted);">
+              <div style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.6rem; color: var(--text-muted); flex-wrap: wrap;">
                 <span>📅 ${formattedDate}</span>
                 ${rep.saved ? `<span style="font-size: 0.5rem; background-color: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.15); padding: 0.05rem 0.25rem; border-radius: 4px; color: var(--color-primary); font-weight: 700;">Saved</span>` : ""}
+                <span style="font-size: 0.5rem; background-color: ${triage.badgeColor}; padding: 0.05rem 0.25rem; border-radius: 4px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.025em;">${triage.label}</span>
               </div>
               <div style="font-size: 0.725rem; font-weight: 700; color: var(--text-main);">
                 ${top ? top.diseaseName : "N/A"} 

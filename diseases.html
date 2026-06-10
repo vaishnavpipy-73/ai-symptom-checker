@@ -98,7 +98,6 @@
   <script>
     let activeCategory = "All";
     let searchQuery = "";
-    let expandedDiseaseId = null;
 
     document.addEventListener("DOMContentLoaded", () => {
       renderCategoryTabs();
@@ -137,20 +136,45 @@
 
     function selectCategoryTab(cat) {
       activeCategory = cat;
-      expandedDiseaseId = null;
       renderCategoryTabs();
       renderCatalog();
     }
 
     function handleSearch(val) {
       searchQuery = val.trim();
-      expandedDiseaseId = null;
       renderCatalog();
     }
 
-    function toggleExpand(id) {
-      expandedDiseaseId = expandedDiseaseId === id ? null : id;
-      renderCatalog();
+    function toggleAccordion(id) {
+      const item = document.getElementById(`accordion-${id}`);
+      const content = document.getElementById(`content-${id}`);
+      const btn = document.getElementById(`btn-${id}`);
+      
+      if (!item || !content) return;
+      
+      const isOpen = item.classList.contains("open");
+      
+      // Close all other accordions first
+      document.querySelectorAll(".accordion-item").forEach(acc => {
+        if (acc.id !== `accordion-${id}`) {
+          acc.classList.remove("open");
+          const c = acc.querySelector(".accordion-content");
+          if (c) c.style.maxHeight = null;
+          const b = acc.querySelector(".accordion-btn");
+          if (b) b.textContent = "▼";
+        }
+      });
+      
+      // Toggle current accordion
+      if (isOpen) {
+        item.classList.remove("open");
+        content.style.maxHeight = null;
+        if (btn) btn.textContent = "▼";
+      } else {
+        item.classList.add("open");
+        content.style.maxHeight = content.scrollHeight + "px";
+        if (btn) btn.textContent = "▲";
+      }
     }
 
     function renderCatalog() {
@@ -187,61 +211,51 @@
       box.className = "library-layout";
       let html = "";
       filtered.forEach(d => {
-        const isExp = expandedDiseaseId === d.id;
         const category = getCategory(d.id);
 
-        let detailsHtml = "";
-        if (isExp) {
-          const symptomsHtml = d.symptoms.map(sId => {
-            const sym = symptomsList.find(s => s.id === sId);
-            return `<span style="font-size: 0.55rem; background-color: var(--bg-secondary); border: 1px solid var(--card-border); padding: 0.1rem 0.35rem; border-radius: 6px; font-weight: 600;">${sym ? sym.name : sId}</span>`;
-          }).join(" ");
-
-          detailsHtml = `
-            <div class="wiki-body">
-              <div>
-                <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; tracking: 0.05em; display: block; margin-bottom: 0.2rem;">Associated Symptoms</span>
-                <div style="display: flex; flex-wrap: wrap; gap: 0.2rem;">${symptomsHtml}</div>
-              </div>
-              <div>
-                <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; tracking: 0.05em; display: block; margin-bottom: 0.15rem;">Common Causes</span>
-                <ul style="font-size: 0.6rem; color: var(--text-muted); list-style: disc; padding-left: 0.85rem;">
-                  ${d.causes.map(c => `<li>${c}</li>`).join('')}
-                </ul>
-              </div>
-              <div>
-                <span style="font-size: 0.55rem; font-weight: 800; color: var(--color-success); text-transform: uppercase; tracking: 0.05em; display: block; margin-bottom: 0.15rem;">Prevention Guidelines</span>
-                <ul style="font-size: 0.6rem; color: var(--text-muted); list-style: disc; padding-left: 0.85rem;">
-                  ${d.prevention.map(p => `<li>${p}</li>`).join('')}
-                </ul>
-              </div>
-              <div>
-                <span style="font-size: 0.55rem; font-weight: 800; color: var(--color-primary); text-transform: uppercase; tracking: 0.05em; display: block; margin-bottom: 0.15rem;">Recommended Self Care</span>
-                <ul style="font-size: 0.6rem; color: var(--text-muted); list-style: disc; padding-left: 0.85rem;">
-                  ${d.recommendations.map(r => `<li>${r}</li>`).join('')}
-                </ul>
-              </div>
-            </div>
-          `;
-        }
+        const symptomsHtml = d.symptoms.map(sId => {
+          const sym = symptomsList.find(s => s.id === sId);
+          return `<span style="font-size: 0.55rem; background-color: var(--bg-secondary); border: 1px solid var(--card-border); padding: 0.1rem 0.35rem; border-radius: 6px; font-weight: 600;">${sym ? sym.name : sId}</span>`;
+        }).join(" ");
 
         html += `
-          <div class="card wiki-card" style="padding: 0;">
-            <div class="wiki-header">
-              <span style="font-size: 0.55rem; background-color: var(--bg-secondary); border: 1px solid var(--card-border); padding: 0.1rem 0.35rem; border-radius: 6px; color: var(--color-primary); font-weight: 800; text-transform: uppercase; letter-spacing: 0.025em; display: inline-block; margin-bottom: 0.5rem;">
-                ${category}
-              </span>
-              <h3 style="font-size: 0.85rem; font-weight: 800; color: var(--text-main);">${d.name}</h3>
-              <p style="font-size: 0.65rem; color: var(--text-muted); line-height: 1.4; margin-top: 0.25rem;">${d.description}</p>
+          <div class="accordion-item" id="accordion-${d.id}">
+            <div class="accordion-header" onclick="toggleAccordion('${d.id}')" style="display: flex; flex-direction: column; align-items: flex-start; gap: 0.35rem; width: 100%;">
+              <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <span style="font-size: 0.55rem; background-color: var(--bg-secondary); border: 1px solid var(--card-border); padding: 0.1rem 0.35rem; border-radius: 6px; color: var(--color-primary); font-weight: 800; text-transform: uppercase; letter-spacing: 0.025em;">
+                  ${category}
+                </span>
+                <button class="accordion-btn" id="btn-${d.id}" style="background: transparent; border: none; font-size: 0.65rem; color: var(--text-muted); cursor: pointer;">▼</button>
+              </div>
+              <h3 style="font-size: 0.85rem; font-weight: 800; color: var(--text-main); margin-top: 0.15rem;">${d.name}</h3>
+              <p style="font-size: 0.65rem; color: var(--text-muted); line-height: 1.4; font-weight: normal; margin-top: 0.1rem;">${d.description}</p>
             </div>
             
-            ${detailsHtml}
-
-            <div class="wiki-footer">
-              <span>${isExp ? 'Collapse details' : 'Read full profile'}</span>
-              <button onclick="toggleExpand('${d.id}')" class="btn btn-secondary" style="padding: 0.25rem 0.45rem; font-size: 0.6rem; border-radius: 8px;">
-                ${isExp ? '▲' : '▼'}
-              </button>
+            <div class="accordion-content" id="content-${d.id}">
+              <div style="display: flex; flex-direction: column; gap: 0.75rem; text-align: left; padding: 0.25rem 0;">
+                <div>
+                  <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; tracking: 0.05em; display: block; margin-bottom: 0.25rem;">Associated Symptoms</span>
+                  <div style="display: flex; flex-wrap: wrap; gap: 0.2rem;">${symptomsHtml}</div>
+                </div>
+                <div>
+                  <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; tracking: 0.05em; display: block; margin-bottom: 0.15rem;">Common Causes</span>
+                  <ul style="font-size: 0.6rem; color: var(--text-muted); list-style: disc; padding-left: 0.85rem; display: flex; flex-direction: column; gap: 0.15rem;">
+                    ${d.causes.map(c => `<li>${c}</li>`).join('')}
+                  </ul>
+                </div>
+                <div>
+                  <span style="font-size: 0.55rem; font-weight: 800; color: var(--color-success); text-transform: uppercase; tracking: 0.05em; display: block; margin-bottom: 0.15rem;">Prevention Guidelines</span>
+                  <ul style="font-size: 0.6rem; color: var(--text-muted); list-style: disc; padding-left: 0.85rem; display: flex; flex-direction: column; gap: 0.15rem;">
+                    ${d.prevention.map(p => `<li>${p}</li>`).join('')}
+                  </ul>
+                </div>
+                <div>
+                  <span style="font-size: 0.55rem; font-weight: 800; color: var(--color-primary); text-transform: uppercase; tracking: 0.05em; display: block; margin-bottom: 0.15rem;">Recommended Self Care</span>
+                  <ul style="font-size: 0.6rem; color: var(--text-muted); list-style: disc; padding-left: 0.85rem; display: flex; flex-direction: column; gap: 0.15rem;">
+                    ${d.recommendations.map(r => `<li>${r}</li>`).join('')}
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         `;

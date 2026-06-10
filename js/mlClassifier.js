@@ -131,3 +131,55 @@ function predictDiseases(selectedSymptomIds, ageGroup = "adult", gender = "femal
     .sort((a, b) => b.confidence - a.confidence)
     .slice(0, 3);
 }
+
+function calculateTriageUrgency(selectedSymptomIds) {
+  // Red (Emergency)
+  const redSymptomIds = ["chest_pain", "shortness_of_breath", "stiff_neck"];
+  // Orange (Urgent)
+  const orangeSymptomIds = ["fever", "dizziness", "abdominal_pain"];
+  // Yellow (Primary Care / Telehealth)
+  const yellowSymptomIds = [
+    "cough", "nausea", "diarrhea", "acid_reflux", "frequent_urination", 
+    "excessive_thirst", "wheezing", "chills", "sweating", "anxiety", 
+    "insomnia", "weight_loss", "bloating", "constipation"
+  ];
+
+  const hasRed = selectedSymptomIds.some(id => redSymptomIds.includes(id));
+  const hasOrange = selectedSymptomIds.some(id => orangeSymptomIds.includes(id));
+  const hasYellow = selectedSymptomIds.some(id => yellowSymptomIds.includes(id));
+
+  if (hasRed) {
+    return {
+      level: "red",
+      label: "Emergency",
+      colorClass: "triage-glow-red",
+      badgeColor: "#ef4444",
+      description: "Severe or potentially life-threatening indicators detected. Please seek emergency medical care immediately."
+    };
+  } else if (hasOrange) {
+    return {
+      level: "orange",
+      label: "Urgent Care",
+      colorClass: "triage-glow-orange",
+      badgeColor: "#f59e0b",
+      description: "Moderate to high severity indicators detected. We recommend visiting an urgent care facility or primary physician today."
+    };
+  } else if (hasYellow) {
+    return {
+      level: "yellow",
+      label: "Telehealth / Clinic",
+      colorClass: "triage-glow-yellow",
+      badgeColor: "#3b82f6",
+      description: "Mild, persistent indicators detected. Schedule a routine doctor consult or consult a telehealth provider."
+    };
+  } else {
+    return {
+      level: "green",
+      label: "Self-Care",
+      colorClass: "triage-glow-green",
+      badgeColor: "#10b981",
+      description: "Common, mild indicators detected. Rest, hydrate, and monitor your symptoms. Use OTC remedies as directed."
+    };
+  }
+}
+

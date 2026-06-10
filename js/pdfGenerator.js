@@ -19,8 +19,15 @@ function generatePDFReport(report, userName, allSymptoms) {
   const pageHeight = doc.internal.pageSize.getHeight();
   const margin = 20;
 
+  const triage = calculateTriageUrgency(report.symptoms);
+  let triageColor = [2, 132, 199]; // Default Sky 600
+  if (triage.level === 'red') triageColor = [220, 38, 38];
+  else if (triage.level === 'orange') triageColor = [217, 119, 6];
+  else if (triage.level === 'yellow') triageColor = [37, 99, 235];
+  else if (triage.level === 'green') triageColor = [5, 150, 105];
+
   // Header top bar
-  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.setFillColor(triageColor[0], triageColor[1], triageColor[2]);
   doc.rect(0, 0, pageWidth, 15, 'F');
 
   doc.setFont('Helvetica', 'bold');
@@ -65,6 +72,15 @@ function generatePDFReport(report, userName, allSymptoms) {
   doc.text('Status:', margin, y);
   setDarkText();
   doc.text('Completed Simulation', margin + 35, y);
+
+  y += 6;
+  setMutedText();
+  doc.text('Triage Level:', margin, y);
+  doc.setFont('Helvetica', 'bold');
+  doc.setTextColor(triageColor[0], triageColor[1], triageColor[2]);
+  doc.text(`${triage.label.toUpperCase()} ADVISORY`, margin + 35, y);
+  doc.setFont('Helvetica', 'normal');
+  setDarkText();
 
   y += 12;
   doc.setFont('Helvetica', 'bold');
