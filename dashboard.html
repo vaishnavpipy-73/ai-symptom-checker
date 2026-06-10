@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Dashboard - MediPredict AI</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <!-- jsPDF CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    @media (min-width: 768px) {
+      .dashboard-layout {
+        grid-template-columns: 2fr 1fr;
+      }
+    }
+    .history-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid var(--card-border);
+      gap: 1rem;
+    }
+    .history-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .history-row:first-child {
+      padding-top: 0;
+    }
+  </style>
+  <script src="js/dataset.js"></script>
+  <script src="js/db.js"></script>
+  <script>
+    // Auth Guard
+    (function() {
+      db.init();
+      if (!db.getCurrentUser()) {
+        window.location.replace("auth.html");
+      }
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- Sticky Header -->
+  <div id="navbar-placeholder"></div>
+
+  <!-- Main Body Content -->
+  <main class="main-content">
+    
+    <!-- Welcome Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+      <div style="text-align: left;">
+        <h1 style="font-size: 1.5rem; font-weight: 800;" id="welcome-title">Dashboard</h1>
+        <p style="font-size: 0.725rem; color: var(--text-muted);" id="welcome-subtitle">Welcome back.</p>
+      </div>
+      <a href="checker.html" class="btn btn-primary" style="font-size: 0.65rem;">
+        <span>+</span> New Assessment
+      </a>
+    </div>
+
+    <!-- Stats row -->
+    <div class="grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 1rem; margin-bottom: 2rem;" id="stats-row"></div>
+
+    <!-- Core Grid Layout -->
+    <div class="dashboard-layout">
+      
+      <!-- History Table List (Left Column) -->
+      <div class="card" style="text-align: left; display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-b: 1px solid var(--card-border);">
+          <h2 style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Assessment Logs</h2>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <input 
+              type="text" 
+              id="history-search" 
+              placeholder="Search..." 
+              style="padding: 0.35rem 0.65rem; border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.65rem; outline: none; width: 8rem; background-color: var(--bg-secondary); color: var(--text-main);"
+              oninput="renderHistory(this.value)"
+            >
+          </div>
+        </div>
+
+        <div id="history-list-box" style="display: flex; flex-direction: column;"></div>
+      </div>
+
+      <!-- Analytics Chart Column (Right Column) -->
+      <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <div class="card" style="text-align: left; height: fit-content;" id="trends-card">
+          <h3 style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 1rem;">Primary Matches</h3>
+          <div id="trends-list-box" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
+        </div>
+
+        <div class="card" style="text-align: left;" id="volume-chart-card">
+          <h3 style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 1rem;">Assessment Volume</h3>
+          <div id="volume-chart-box"></div>
+        </div>
+
+        <div class="card" style="text-align: left;" id="distribution-chart-card">
+          <h3 style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 1rem;">Condition Share</h3>
+          <div id="distribution-chart-box" style="display: flex; flex-direction: column; gap: 1rem;"></div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Details Overlay Dialog Modal -->
+  <div class="modal-overlay" id="report-modal" style="display: none;">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div style="text-align: left;">
+          <h3 style="font-size: 0.85rem; font-weight: 800;">Clinical Assessment Details</h3>
+          <p style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;" id="modal-report-id"></p>
+        </div>
+        <button onclick="closeModal()" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; border-radius: 8px;">✕</button>
+      </div>
+
+      <div class="modal-body" id="modal-body-content"></div>
+
+      <div class="modal-footer">
+        <button onclick="downloadModalPDF()" class="btn btn-primary" style="font-size: 0.65rem;">
+          <span>📄</span> Download PDF
+        </button>
+        <button onclick="closeModal()" class="btn btn-secondary" style="font-size: 0.65rem;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sticky Footer -->
+  <footer id="footer-placeholder"></footer>
+
+  <!-- Script Imports -->
+  <script src="js/pdfGenerator.js"></script>
+  <script src="js/navbar.js"></script>
+  <script src="js/footer.js"></script>
+
+  <!-- Page Logic Script -->
+  <script>
+    let activeModalReport = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const user = db.getCurrentUser();
+      if (user) {
+        document.getElementById("welcome-title").textContent = `Dashboard`;
+        document.getElementById("welcome-subtitle").textContent = `Welcome back, ${user.name}. Review assessment logs.`;
+      }
+      loadDashboard();
+    });
+
+    function loadDashboard() {
+      renderStats();
+      renderHistory("");
+      renderTrends();
+      renderVolumeChart();
+      renderDistributionChart();
+    }
+
+    function renderStats() {
+      const reports = db.getReports();
+      const symptomsList = db.getSymptoms();
+      
+      const totalCount = reports.length;
+      const savedCount = reports.filter(r => r.saved).length;
+      const uniqueSymptoms = Array.from(new Set(reports.flatMap(r => r.symptoms))).length;
+      const latestResult = totalCount > 0 && reports[0].predictions.length > 0
+        ? `${reports[0].predictions[0].diseaseName} (${reports[0].predictions[0].confidence}%)`
+        : "N/A";
+
+      const box = document.getElementById("stats-row");
+      if (!box) return;
+
+      box.innerHTML = `
+        <div class="card" style="text-align: left;">
+          <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Total Runs</span>
+          <div style="font-size: 1.5rem; font-weight: 800; margin-top: 0.25rem;">${totalCount}</div>
+          <p style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;">Completed checks</p>
+        </div>
+        <div class="card" style="text-align: left;">
+          <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Saved Reports</span>
+          <div style="font-size: 1.5rem; font-weight: 800; margin-top: 0.25rem;">${savedCount}</div>
+          <p style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;">Bookmarked assessments</p>
+        </div>
+        <div class="card" style="text-align: left;">
+          <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Symptoms Audited</span>
+          <div style="font-size: 1.5rem; font-weight: 800; margin-top: 0.25rem;">${uniqueSymptoms}</div>
+          <p style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;">Distinct indicators</p>
+        </div>
+        <div class="card" style="text-align: left;">
+          <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Latest Suggestion</span>
+          <div style="font-size: 1.15rem; font-weight: 800; margin-top: 0.45rem;" class="text-gradient">${latestResult}</div>
+          <p style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;">Top probability match</p>
+        </div>
+      `;
+    }
+
+    function renderHistory(query) {
+      const box = document.getElementById("history-list-box");
+      if (!box) return;
+
+      const reports = db.getReports();
+      const symptomsList = db.getSymptoms();
+
+      const filtered = reports.filter(r => {
+        const dName = r.predictions.length > 0 ? r.predictions[0].diseaseName.toLowerCase() : "";
+        const note = r.notes ? r.notes.toLowerCase() : "";
+        const symNames = r.symptoms.map(sId => symptomsList.find(s => s.id === sId)?.name.toLowerCase() || sId).join(' ');
+        
+        return dName.includes(query.toLowerCase()) || 
+               note.includes(query.toLowerCase()) || 
+               symNames.includes(query.toLowerCase());
+      });
+
+      if (filtered.length === 0) {
+        box.innerHTML = `
+          <div style="text-align: center; py: 3rem; color: var(--text-muted); font-size: 0.7rem; padding: 2rem 0;">
+            No records match the filter query.
+          </div>
+        `;
+        return;
+      }
+
+      let html = "";
+      filtered.forEach(rep => {
+        const top = rep.predictions.length > 0 ? rep.predictions[0] : null;
+        const formattedDate = new Date(rep.date).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+        
+        const tags = rep.symptoms.slice(0, 3).map(sId => {
+          const sym = symptomsList.find(s => s.id === sId);
+          return `<span style="font-size: 0.55rem; background-color: var(--bg-secondary); border: 1px solid var(--card-border); padding: 0.1rem 0.35rem; border-radius: 6px; color: var(--text-main); font-weight: 600;">${sym ? sym.name : sId}</span>`;
+        }).join(" ");
+
+        const extraTags = rep.symptoms.length > 3 ? `<span style="font-size: 0.55rem; color: var(--text-muted); font-weight: 700;">+${rep.symptoms.length - 3}</span>` : "";
+
+        html += `
+          <div class="history-row">
+            <div style="text-align: left; display: flex; flex-direction: column; gap: 0.2rem; max-width: 65%;">
+              <div style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.6rem; color: var(--text-muted);">
+                <span>📅 ${formattedDate}</span>
+                ${rep.saved ? `<span style="font-size: 0.5rem; background-color: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.15); padding: 0.05rem 0.25rem; border-radius: 4px; color: var(--color-primary); font-weight: 700;">Saved</span>` : ""}
+              </div>
+              <div style="font-size: 0.725rem; font-weight: 700; color: var(--text-main);">
+                ${top ? top.diseaseName : "N/A"} 
+                <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: normal;">(${top ? top.confidence : 0}% Match)</span>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 0.2rem; margin-top: 0.2rem;">
+                ${tags} ${extraTags}
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 0.15rem; align-items: center;">
+              <button onclick="viewReportDetails('${rep.id}')" class="btn btn-secondary" style="padding: 0.35rem;" title="View Details">👁️</button>
+              <button onclick="downloadPDFDirect('${rep.id}')" class="btn btn-secondary" style="padding: 0.35rem;" title="Download PDF">📄</button>
+              <button onclick="toggleBookmark('${rep.id}')" class="btn btn-secondary" style="padding: 0.35rem; color: ${rep.saved ? 'var(--color-warning)' : 'inherit'};" title="Bookmark">🔖</button>
+              <button onclick="deleteRecord('${rep.id}')" class="btn btn-danger" style="padding: 0.35rem;" title="Delete">🗑️</button>
+            </div>
+          </div>
+        `;
+      });
+
+      box.innerHTML = html;
+    }
+
+    function renderTrends() {
+      const box = document.getElementById("trends-list-box");
+      if (!box) return;
+
+      const reports = db.getReports();
+      if (reports.length === 0) {
+        box.innerHTML = `<div style="font-size: 0.65rem; color: var(--text-muted); text-align: center; padding: 1.5rem 0;">No trend statistics logs.</div>`;
+        return;
+      }
+
+      const counts = {};
+      reports.forEach(r => {
+        if (r.predictions.length > 0) {
+          const name = r.predictions[0].diseaseName;
+          counts[name] = (counts[name] || 0) + 1;
+        }
+      });
+
+      const trends = Object.entries(counts)
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 4);
+
+      const maxVal = Math.max(...trends.map(t => t.value)) || 1;
+
+      let html = "";
+      trends.forEach(item => {
+        const pct = (item.value / maxVal) * 100;
+        html += `
+          <div style="display: flex; flex-direction: column; gap: 0.2rem; text-align: left;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: 600;">
+              <span style="max-width: 75%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.name}</span>
+              <span style="color: var(--text-muted);">${item.value} runs</span>
+            </div>
+            <div class="stat-bar-bg">
+              <div class="stat-bar-fill" style="width: ${pct}%;"></div>
+            </div>
+          </div>
+        `;
+      });
+
+      box.innerHTML = html;
+    }
+
+    function renderVolumeChart() {
+      const box = document.getElementById("volume-chart-box");
+      if (!box) return;
+
+      const reports = db.getReports();
+      
+      // Calculate last 7 days
+      const dates = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        dates.push(d);
+      }
+
+      const dataPoints = dates.map(d => {
+        const dateStr = d.toDateString();
+        const count = reports.filter(r => new Date(r.date).toDateString() === dateStr).length;
+        return {
+          label: d.toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' }),
+          count: count
+        };
+      });
+
+      const counts = dataPoints.map(dp => dp.count);
+      const maxCount = Math.max(...counts, 4); // Y-axis max (at least 4 to look nice)
+
+      // SVG dimensions and padding
+      const svgWidth = 300;
+      const svgHeight = 120;
+      const paddingLeft = 25;
+      const paddingRight = 15;
+      const paddingTop = 15;
+      const paddingBottom = 20;
+
+      const chartWidth = svgWidth - paddingLeft - paddingRight;
+      const chartHeight = svgHeight - paddingTop - paddingBottom;
+      const spacing = chartWidth / (dataPoints.length - 1);
+
+      // Map data to SVG coordinates
+      const points = dataPoints.map((dp, i) => {
+        const x = paddingLeft + i * spacing;
+        const y = svgHeight - paddingBottom - (dp.count / maxCount) * chartHeight;
+        return { x, y, label: dp.label, count: dp.count };
+      });
+
+      // Generate Grid lines (horizontal) and Y axis labels
+      let gridLinesHtml = "";
+      for (let i = 0; i <= 3; i++) {
+        const yVal = paddingTop + (i / 3) * chartHeight;
+        const gridVal = Math.round(maxCount - (i / 3) * maxCount);
+        gridLinesHtml += `
+          <line class="chart-grid-line" x1="${paddingLeft}" y1="${yVal}" x2="${svgWidth - paddingRight}" y2="${yVal}"></line>
+          <text class="chart-axis-text" x="${paddingLeft - 5}" y="${yVal + 3}" text-anchor="end">${gridVal}</text>
+        `;
+      }
+
+      // Path data strings
+      let linePathStr = "";
+      let areaPathStr = "";
+
+      if (points.length > 0) {
+        linePathStr = `M ${points[0].x} ${points[0].y} ` + points.slice(1).map(p => `L ${p.x} ${p.y}`).join(" ");
+        areaPathStr = `M ${points[0].x} ${svgHeight - paddingBottom} L ${points[0].x} ${points[0].y} ` + 
+                      points.slice(1).map(p => `L ${p.x} ${p.y}`).join(" ") + 
+                      ` L ${points[points.length - 1].x} ${svgHeight - paddingBottom} Z`;
+      }
+
+      // X-axis labels and data circles
+      let labelsHtml = "";
+      let dotsHtml = "";
+      points.forEach(p => {
+        labelsHtml += `<text class="chart-axis-text" x="${p.x}" y="${svgHeight - 5}" text-anchor="middle">${p.label}</text>`;
+        dotsHtml += `
+          <circle class="chart-data-dot" cx="${p.x}" cy="${p.y}" r="3" data-count="${p.count}">
+            <title>${p.count} runs on ${p.label}</title>
+          </circle>
+        `;
+      });
+
+      const svgHtml = `
+        <svg class="chart-container-svg" viewBox="0 0 ${svgWidth} ${svgHeight}">
+          <defs>
+            <linearGradient id="area-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--color-primary)" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="var(--color-primary)" stop-opacity="0.0"/>
+            </linearGradient>
+          </defs>
+          ${gridLinesHtml}
+          ${areaPathStr ? `<path class="chart-area-path" d="${areaPathStr}"></path>` : ""}
+          ${linePathStr ? `<path class="chart-data-line" d="${linePathStr}"></path>` : ""}
+          ${labelsHtml}
+          ${dotsHtml}
+        </svg>
+      `;
+
+      box.innerHTML = svgHtml;
+    }
+
+    function renderDistributionChart() {
+      const box = document.getElementById("distribution-chart-box");
+      if (!box) return;
+
+      const reports = db.getReports();
+      if (reports.length === 0) {
+        box.innerHTML = `<div style="font-size: 0.65rem; color: var(--text-muted); text-align: center; padding: 1.5rem 0;">No diagnostic distribution logs.</div>`;
+        return;
+      }
+
+      const counts = {};
+      reports.forEach(r => {
+        if (r.predictions && r.predictions.length > 0) {
+          const name = r.predictions[0].diseaseName;
+          counts[name] = (counts[name] || 0) + 1;
+        }
+      });
+
+      const total = Object.values(counts).reduce((a, b) => a + b, 0);
+      const segments = Object.entries(counts)
+        .map(([name, val]) => ({ name, val, pct: val / total }))
+        .sort((a, b) => b.val - a.val);
+
+      // SVG params
+      const radius = 35;
+      const circumference = 2 * Math.PI * radius; // ~219.9
+      const colors = ["var(--color-primary)", "var(--color-secondary)", "var(--color-success)", "var(--color-warning)", "var(--color-neutral)"];
+
+      let accumulatedPct = 0;
+      let segmentsHtml = "";
+      let legendHtml = "";
+
+      segments.forEach((seg, i) => {
+        const color = colors[i % colors.length];
+        const dashArray = `${seg.pct * circumference} ${circumference - (seg.pct * circumference)}`;
+        const dashOffset = -(accumulatedPct * circumference);
+        accumulatedPct += seg.pct;
+
+        segmentsHtml += `
+          <circle 
+            class="chart-donut-segment" 
+            cx="50" 
+            cy="50" 
+            r="${radius}" 
+            stroke="${color}" 
+            stroke-dasharray="${dashArray}" 
+            stroke-dashoffset="${dashOffset}" 
+            transform="rotate(-90 50 50)"
+          >
+            <title>${seg.name}: ${seg.val} (${Math.round(seg.pct * 100)}%)</title>
+          </circle>
+        `;
+
+        legendHtml += `
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: 100%;">
+            <div style="display: flex; align-items: center; gap: 0.4rem; max-width: 75%;">
+              <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background-color: ${color}; flex-shrink: 0;"></span>
+              <span style="font-size: 0.65rem; font-weight: 600; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${seg.name}</span>
+            </div>
+            <span style="font-size: 0.6rem; color: var(--text-muted); font-weight: 700; flex-shrink: 0;">${seg.val} (${Math.round(seg.pct * 100)}%)</span>
+          </div>
+        `;
+      });
+
+      const svgHtml = `
+        <svg viewBox="0 0 100 100" style="width: 100px; height: 100px; overflow: visible; flex-shrink: 0;">
+          <circle class="chart-donut-bg" cx="50" cy="50" r="${radius}"></circle>
+          ${segmentsHtml}
+          <text x="50" y="48" text-anchor="middle" style="font-size: 8px; font-weight: 800; fill: var(--text-main); font-family: 'Plus Jakarta Sans', sans-serif;">${total}</text>
+          <text x="50" y="58" text-anchor="middle" style="font-size: 5px; font-weight: 600; fill: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Checks</text>
+        </svg>
+      `;
+
+      box.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: center; gap: 1.5rem; flex-wrap: wrap;">
+          ${svgHtml}
+          <div style="display: flex; flex-direction: column; gap: 0.4rem; flex: 1; min-width: 120px;">
+            ${legendHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    function viewReportDetails(id) {
+      const reports = db.getReports();
+      const report = reports.find(r => r.id === id);
+      if (!report) return;
+
+      activeModalReport = report;
+      const symptomsList = db.getSymptoms();
+
+      document.getElementById("modal-report-id").textContent = `ID: ${report.id} • ${new Date(report.date).toLocaleString()}`;
+      
+      const symptomsHtml = report.symptoms.map(sId => {
+        const sym = symptomsList.find(s => s.id === sId);
+        return `<span style="font-size: 0.55rem; background-color: var(--bg-secondary); border: 1px solid var(--card-border); padding: 0.15rem 0.4rem; border-radius: 8px; font-weight: 600; color: var(--text-main);">${sym ? sym.name : sId}</span>`;
+      }).join(" ");
+
+      let predsHtml = "";
+      report.predictions.forEach((pred, idx) => {
+        const topClass = idx === 0 ? "pred-card-top" : "";
+        predsHtml += `
+          <div class="pred-card ${topClass}" style="width: 100%; text-align: left; padding: 0.75rem; border-radius: 10px; border: 1px solid var(--card-border); margin-bottom: 0.5rem; background-color: var(--card-bg);">
+            <div class="pred-header" style="font-size: 0.7rem; font-weight: 700; display: flex; justify-content: space-between; margin-bottom: 0.2rem;">
+              <span>${pred.diseaseName}</span>
+              <span class="pred-badge">${pred.confidence}% Match</span>
+            </div>
+            <div class="pred-bar-bg" style="height: 4px;">
+              <div class="pred-bar-fill" style="width: ${pred.confidence}%;"></div>
+            </div>
+            <p style="font-size: 0.6rem; color: var(--text-muted); line-height: 1.4;">${pred.description}</p>
+            ${idx === 0 ? `
+              <div style="margin-top: 0.35rem; border-top: 1px solid var(--card-border); padding-top: 0.35rem;">
+                <span style="font-size: 0.55rem; font-weight: 800; text-transform: uppercase; color: var(--text-main); display: block; margin-bottom: 0.15rem;">Recommendations</span>
+                <ul style="font-size: 0.55rem; color: var(--text-muted); list-style: disc; padding-left: 0.75rem;">
+                  ${pred.recommendations.map(r => `<li>${r}</li>`).join('')}
+                </ul>
+              </div>
+            ` : ""}
+          </div>
+        `;
+      });
+
+      const bodyHtml = `
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; text-align: left;">
+          <div>
+            <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; tracking: 0.05em; display: block; margin-bottom: 0.25rem;">Checked Symptoms</span>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.2rem;">${symptomsHtml}</div>
+          </div>
+          <div>
+            <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; tracking: 0.05em; display: block; margin-bottom: 0.25rem;">Diagnostics Output</span>
+            <div style="display: flex; flex-direction: column; gap: 0.25rem;">${predsHtml}</div>
+          </div>
+          ${report.notes ? `
+            <div>
+              <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; tracking: 0.05em; display: block; margin-bottom: 0.25rem;">Patient Notes</span>
+              <div style="padding: 0.5rem; background-color: var(--bg-secondary); border-radius: 8px; font-size: 0.65rem; font-style: italic; color: var(--text-muted);">
+                "${report.notes}"
+              </div>
+            </div>
+          ` : ""}
+        </div>
+      `;
+
+      document.getElementById("modal-body-content").innerHTML = bodyHtml;
+      document.getElementById("report-modal").style.display = "flex";
+    }
+
+    function closeModal() {
+      document.getElementById("report-modal").style.display = "none";
+      activeModalReport = null;
+    }
+
+    function downloadModalPDF() {
+      if (!activeModalReport) return;
+      const user = db.getCurrentUser();
+      const symptomsList = db.getSymptoms();
+      generatePDFReport(activeModalReport, user.name, symptomsList);
+    }
+
+    function downloadPDFDirect(id) {
+      const reports = db.getReports();
+      const report = reports.find(r => r.id === id);
+      if (!report) return;
+      const user = db.getCurrentUser();
+      const symptomsList = db.getSymptoms();
+      generatePDFReport(report, user.name, symptomsList);
+    }
+
+    function toggleBookmark(id) {
+      if (db.toggleSaveReport(id)) {
+        loadDashboard();
+      }
+    }
+
+    function deleteRecord(id) {
+      if (confirm("Are you sure you want to delete this assessment?")) {
+        if (db.deleteReport(id)) {
+          loadDashboard();
+        }
+      }
+    }
+  </script>
+</body>
+</html>

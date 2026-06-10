@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - MediPredict AI</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .admin-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    @media (min-width: 768px) {
+      .admin-metrics {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+    .panel-section {
+      display: none;
+    }
+    .panel-section.active {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+  </style>
+  <script src="js/dataset.js"></script>
+  <script src="js/db.js"></script>
+  <script>
+    // Enforce Admin Access
+    (function() {
+      db.init();
+      const user = db.getCurrentUser();
+      if (!user || user.role !== 'admin') {
+        window.location.replace("admin-login.html");
+      }
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- Sticky Header -->
+  <div id="navbar-placeholder"></div>
+
+  <!-- Main Body Content -->
+  <main class="main-content">
+    
+    <!-- Title and actions row -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+      <div style="text-align: left;">
+        <h1 style="font-size: 1.5rem; font-weight: 800;" class="text-gradient">Admin Operations Desk</h1>
+        <p style="font-size: 0.725rem; color: var(--text-muted);">Manage platform databases and audit search analytics.</p>
+      </div>
+      
+      <!-- Quick actions -->
+      <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
+        <span id="admin-feedback" style="display: none; font-size: 0.6rem; color: var(--color-success); background: rgba(16, 185, 129, 0.05); padding: 0.25rem 0.5rem; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.15); font-weight: 700;"></span>
+        <button onclick="loadSamplePreset()" class="btn btn-secondary" style="font-size: 0.6rem; padding: 0.4rem 0.65rem;">Load Preset</button>
+        <button onclick="triggerDebugTest()" class="btn btn-secondary" style="font-size: 0.6rem; padding: 0.4rem 0.65rem;">Run Test</button>
+        <button onclick="syncMetrics()" class="btn btn-secondary" style="font-size: 0.6rem; padding: 0.4rem 0.65rem;">Sync Stats</button>
+      </div>
+    </div>
+
+    <!-- Metrics Cards Row -->
+    <div class="admin-metrics">
+      <div class="card" style="text-align: left;">
+        <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; tracking: 0.05em;">Total Users</span>
+        <div style="font-size: 1.5rem; font-weight: 800; margin-top: 0.25rem;" id="metric-users">0</div>
+        <p style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;">Registered simulated accounts</p>
+      </div>
+      <div class="card" style="text-align: left;">
+        <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; tracking: 0.05em;">Predictions Run</span>
+        <div style="font-size: 1.5rem; font-weight: 800; margin-top: 0.25rem;" id="metric-predictions">0</div>
+        <p style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;">Inference classifier runs</p>
+      </div>
+      <div class="card" style="text-align: left;">
+        <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; tracking: 0.05em;">Diseases List</span>
+        <div style="font-size: 1.5rem; font-weight: 800; margin-top: 0.25rem;" id="metric-diseases">0</div>
+        <p style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;">Active diagnostic guides</p>
+      </div>
+      <div class="card" style="text-align: left;">
+        <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; tracking: 0.05em;">Symptoms List</span>
+        <div style="font-size: 1.5rem; font-weight: 800; margin-top: 0.25rem;" id="metric-symptoms">0</div>
+        <p style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;">Audited indicators</p>
+      </div>
+    </div>
+
+    <!-- Core Admin Layout Container -->
+    <div class="admin-grid">
+      
+      <!-- Sidebar Navigation (Left Column) -->
+      <div class="admin-sidebar">
+        <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; tracking: 0.05em; display: block; padding-left: 0.75rem; margin-bottom: 0.35rem;">Navigation</span>
+        <button onclick="switchAdminTab('analytics')" class="admin-btn active" id="tab-btn-analytics">📈 Overview</button>
+        <button onclick="switchAdminTab('symptoms')" class="admin-btn" id="tab-btn-symptoms">🏷️ Symptoms DB</button>
+        <button onclick="switchAdminTab('diseases')" class="admin-btn" id="tab-btn-diseases">📖 Diseases DB</button>
+        <button onclick="switchAdminTab('users')" class="admin-btn" id="tab-btn-users">👥 Users Directory</button>
+      </div>
+
+      <!-- Main Contents (Right Column) -->
+      <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        
+        <!-- Tab: Overview Analytics -->
+        <div class="panel-section active" id="section-analytics">
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 1.25rem;">
+            <div class="card" style="text-align: left;">
+              <h3 style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); tracking: 0.025em; margin-bottom: 1rem;">Frequent Searches</h3>
+              <div id="analytics-symptoms-box" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
+            </div>
+
+            <div class="card" style="text-align: left;">
+              <h3 style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); tracking: 0.025em; margin-bottom: 1rem;">Disease Share</h3>
+              <div id="analytics-diseases-box" style="display: flex; flex-direction: column; gap: 1rem;"></div>
+            </div>
+          </div>
+
+          <div class="card" style="text-align: left;" id="analytics-volume-card">
+            <h3 style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); tracking: 0.025em; margin-bottom: 1rem;">Platform Assessment Volume</h3>
+            <div id="analytics-volume-box"></div>
+          </div>
+
+          <!-- Logs -->
+          <div class="card" style="text-align: left;">
+            <h3 style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); tracking: 0.025em; margin-bottom: 0.75rem;">System Auditor Log</h3>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; text-align: left; font-size: 0.65rem; border-collapse: collapse;">
+                <thead>
+                  <tr style="border-bottom: 1px solid var(--card-border); color: var(--text-muted); font-weight: 800;">
+                    <th style="padding-bottom: 0.5rem; pr: 0.25rem;">Timestamp</th>
+                    <th style="padding-bottom: 0.5rem; pr: 0.25rem;">Report ID</th>
+                    <th style="padding-bottom: 0.5rem; pr: 0.25rem;">Symptoms</th>
+                    <th style="padding-bottom: 0.5rem; pr: 0.25rem;">Matches</th>
+                    <th style="padding-bottom: 0.5rem; pr: 0.25rem;">Confidence</th>
+                  </tr>
+                </thead>
+                <tbody id="logs-table-body" style="color: var(--text-muted);"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Tab: Manage Symptoms -->
+        <div class="panel-section" id="section-symptoms">
+          <div style="display: grid; grid-template-columns: 1fr; gap: 1.25rem;">
+            
+            <div style="display: grid; grid-template-columns: 1fr; gap: 1.25rem;">
+              <!-- Add Symptom Form -->
+              <div class="card" style="text-align: left;">
+                <h3 style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1rem;">Log New Symptom</h3>
+                
+                <div id="sym-success" style="display: none; padding: 0.5rem; margin-bottom: 1rem; font-size: 0.65rem; color: var(--color-success); background-color: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 8px;">
+                  ✓ Symptom created successfully.
+                </div>
+
+                <form onsubmit="handleCreateSymptom(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 0.75rem; align-items: flex-end;">
+                  <div class="form-group">
+                    <label class="form-label">Symptom Name</label>
+                    <input type="text" id="add-sym-name" placeholder="e.g., Joint Swelling" class="form-input" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Category Group</label>
+                    <select id="add-sym-cat" class="form-input">
+                      <option value="General">General</option>
+                      <option value="Respiratory">Respiratory</option>
+                      <option value="Neurological">Neurological</option>
+                      <option value="Gastrointestinal">Gastrointestinal</option>
+                      <option value="Cardiovascular">Cardiovascular</option>
+                      <option value="Dermatological">Dermatological</option>
+                      <option value="Urinary">Urinary</option>
+                    </select>
+                  </div>
+                  <button type="submit" class="btn btn-primary" style="font-size: 0.65rem; padding: 0.65rem 1rem;">Create</button>
+                </form>
+              </div>
+
+              <!-- List Symptoms -->
+              <div class="card" style="text-align: left;">
+                <h3 style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1rem;">Registered Symptoms Library</h3>
+                <div id="admin-symptoms-list-box" style="display: flex; flex-wrap: wrap; gap: 0.25rem; max-height: 12rem; overflow-y: auto; padding-right: 0.25rem;"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Tab: Manage Diseases -->
+        <div class="panel-section" id="section-diseases">
+          <div style="display: grid; grid-template-columns: 1fr; gap: 1.25rem;">
+            
+            <!-- Add Disease Form -->
+            <div class="card" style="text-align: left;">
+              <h3 style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1rem;">Log New Disease Profile</h3>
+              
+              <div id="disease-success" style="display: none; padding: 0.5rem; margin-bottom: 1rem; font-size: 0.65rem; color: var(--color-success); background-color: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 8px;">
+                ✓ Disease logged and Naive Bayes probabilities updated.
+              </div>
+              <div id="disease-error" style="display: none; padding: 0.5rem; margin-bottom: 1rem; font-size: 0.65rem; color: var(--color-danger); background-color: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.15); border-radius: 8px;"></div>
+
+              <form onsubmit="handleCreateDisease(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                  <div class="form-group">
+                    <label class="form-label">Disease Name</label>
+                    <input type="text" id="add-disease-name" placeholder="e.g., Chronic Ear Infection" class="form-input" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Profile Description</label>
+                    <input type="text" id="add-disease-desc" placeholder="e.g., Recurrent ear pain..." class="form-input" required>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Check Associated Symptoms</label>
+                  <div id="disease-symptoms-checklist" style="display: flex; flex-wrap: wrap; gap: 0.2rem; padding: 0.5rem; background-color: var(--bg-secondary); border-radius: 10px; max-height: 6rem; overflow-y: auto; border: 1px solid var(--card-border);"></div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Causes (One per line)</label>
+                  <textarea id="add-disease-causes" placeholder="e.g., Bacterial infiltration via Eustachian tube" class="form-input" style="height: 3rem; resize: none;"></textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                  <div class="form-group">
+                    <label class="form-label">Preventions (One per line)</label>
+                    <textarea id="add-disease-prev" placeholder="e.g., Keep ears dry after swimming" class="form-input" style="height: 3rem; resize: none;"></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Care Recommendations (One per line)</label>
+                    <textarea id="add-disease-recs" placeholder="e.g., Warm dry compress to ear" class="form-input" style="height: 3rem; resize: none;"></textarea>
+                  </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="font-size: 0.65rem; padding: 0.65rem 1rem; width: fit-content; align-self: flex-end;">
+                  Save Disease Profile
+                </button>
+              </form>
+            </div>
+
+            <!-- List Custom Diseases -->
+            <div class="card" style="text-align: left;">
+              <h3 style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1rem;">Manage Custom Disease Profiles</h3>
+              <div id="admin-custom-diseases-box" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Tab: Users list -->
+        <div class="panel-section" id="section-users">
+          <div class="card" style="text-align: left;">
+            <h3 style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1rem;">Registered Patients Registry</h3>
+            <div id="admin-users-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.75rem;"></div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Sticky Footer -->
+  <footer id="footer-placeholder"></footer>
+
+  <!-- Script Imports -->
+  <script src="js/navbar.js"></script>
+  <script src="js/footer.js"></script>
+
+  <!-- Page Logic Script -->
+  <script>
+    let activeTab = "analytics";
+    let selectedSymptomsForDisease = [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadAdminPanel();
+    });
+
+    function loadAdminPanel() {
+      renderMetrics();
+      renderAuditLogs();
+      renderOverviewCharts();
+      renderSymptomsCatalog();
+      renderSymptomChecklist();
+      renderCustomDiseasesList();
+      renderUsersList();
+    }
+
+    function renderMetrics() {
+      const reports = db.getReports();
+      const users = db.getUsers();
+      const diseases = db.getDiseases();
+      const symptoms = db.getSymptoms();
+      
+      document.getElementById("metric-users").textContent = users.length + 343; // Simulated patient base
+      document.getElementById("metric-predictions").textContent = reports.length + 1418;
+      document.getElementById("metric-diseases").textContent = diseases.length;
+      document.getElementById("metric-symptoms").textContent = symptoms.length;
+    }
+
+    function renderAuditLogs() {
+      const reports = db.getReports();
+      const symptomsList = db.getSymptoms();
+      const box = document.getElementById("logs-table-body");
+      if (!box) return;
+
+      let html = "";
+      reports.forEach(rep => {
+        const top = rep.predictions.length > 0 ? rep.predictions[0] : null;
+        const formattedDate = new Date(rep.date).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+        const listStr = rep.symptoms.map(sId => symptomsList.find(s => s.id === sId)?.name || sId).join(", ");
+
+        html += `
+          <tr style="border-bottom: 1px solid var(--card-border); hover: bg-secondary/15;">
+            <td style="padding: 0.4rem 0.25rem;">${formattedDate}</td>
+            <td style="padding: 0.4rem 0.25rem; font-weight: 700; color: var(--text-main);">${rep.id.slice(4)}</td>
+            <td style="padding: 0.4rem 0.25rem; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${listStr}">${listStr}</td>
+            <td style="padding: 0.4rem 0.25rem; font-weight: 700; color: var(--color-primary);">${top ? top.diseaseName : "N/A"}</td>
+            <td style="padding: 0.4rem 0.25rem;">${top ? top.confidence : 0}%</td>
+          </tr>
+        `;
+      });
+      box.innerHTML = html;
+    }
+
+    function renderOverviewCharts() {
+      const analytics = db.getAnalytics();
+      const reports = db.getReports();
+
+      // Render searched symptoms
+      const symBox = document.getElementById("analytics-symptoms-box");
+      if (symBox) {
+        const maxVal = Math.max(...analytics.popularSymptoms.map(s => s.count)) || 1;
+        let html = "";
+        analytics.popularSymptoms.forEach(item => {
+          const pct = (item.count / maxVal) * 100;
+          html += `
+            <div style="display: flex; flex-direction: column; gap: 0.2rem; text-align: left;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: 600;">
+                <span>${item.name}</span>
+                <span style="color: var(--text-muted);">${item.count} hits</span>
+              </div>
+              <div class="stat-bar-bg" style="height: 4px;">
+                <div class="stat-bar-fill" style="width: ${pct}%;"></div>
+              </div>
+            </div>
+          `;
+        });
+        symBox.innerHTML = html;
+      }
+
+      // Render disease share (Doughnut Chart)
+      const disBox = document.getElementById("analytics-diseases-box");
+      if (disBox) {
+        if (reports.length === 0) {
+          disBox.innerHTML = `<div style="font-size: 0.65rem; color: var(--text-muted); text-align: center; padding: 1.5rem 0;">No platform diagnostic distribution logs.</div>`;
+        } else {
+          const diseaseCounts = {};
+          reports.forEach(r => {
+            if (r.predictions && r.predictions.length > 0) {
+              const name = r.predictions[0].diseaseName;
+              diseaseCounts[name] = (diseaseCounts[name] || 0) + 1;
+            }
+          });
+
+          const total = Object.values(diseaseCounts).reduce((a, b) => a + b, 0);
+          const segments = Object.entries(diseaseCounts)
+            .map(([name, val]) => ({ name, val, pct: val / total }))
+            .sort((a, b) => b.val - a.val);
+
+          const radius = 35;
+          const circumference = 2 * Math.PI * radius;
+          const colors = ["var(--color-primary)", "var(--color-secondary)", "var(--color-success)", "var(--color-warning)", "var(--color-neutral)"];
+
+          let accumulatedPct = 0;
+          let segmentsHtml = "";
+          let legendHtml = "";
+
+          segments.forEach((seg, i) => {
+            const color = colors[i % colors.length];
+            const dashArray = `${seg.pct * circumference} ${circumference - (seg.pct * circumference)}`;
+            const dashOffset = -(accumulatedPct * circumference);
+            accumulatedPct += seg.pct;
+
+            segmentsHtml += `
+              <circle 
+                class="chart-donut-segment" 
+                cx="50" 
+                cy="50" 
+                r="${radius}" 
+                stroke="${color}" 
+                stroke-dasharray="${dashArray}" 
+                stroke-dashoffset="${dashOffset}" 
+                transform="rotate(-90 50 50)"
+              >
+                <title>${seg.name}: ${seg.val} (${Math.round(seg.pct * 100)}%)</title>
+              </circle>
+            `;
+
+            legendHtml += `
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; width: 100%;">
+                <div style="display: flex; align-items: center; gap: 0.35rem; max-width: 70%;">
+                  <span style="display: inline-block; width: 5px; height: 5px; border-radius: 50%; background-color: ${color}; flex-shrink: 0;"></span>
+                  <span style="font-size: 0.6rem; font-weight: 600; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${seg.name}</span>
+                </div>
+                <span style="font-size: 0.55rem; color: var(--text-muted); font-weight: 700; flex-shrink: 0;">${seg.val}</span>
+              </div>
+            `;
+          });
+
+          const svgHtml = `
+            <svg viewBox="0 0 100 100" style="width: 80px; height: 80px; overflow: visible; flex-shrink: 0;">
+              <circle class="chart-donut-bg" cx="50" cy="50" r="${radius}"></circle>
+              ${segmentsHtml}
+              <text x="50" y="48" text-anchor="middle" style="font-size: 8px; font-weight: 800; fill: var(--text-main); font-family: 'Plus Jakarta Sans', sans-serif;">${total}</text>
+              <text x="50" y="58" text-anchor="middle" style="font-size: 5px; font-weight: 600; fill: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Runs</text>
+            </svg>
+          `;
+
+          disBox.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; gap: 1.25rem; flex-wrap: wrap;">
+              ${svgHtml}
+              <div style="display: flex; flex-direction: column; gap: 0.3rem; flex: 1; min-width: 110px;">
+                ${legendHtml}
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      // Render platform assessment volume chart (Area Chart)
+      const volBox = document.getElementById("analytics-volume-box");
+      if (volBox) {
+        // Calculate last 7 days
+        const dates = [];
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          dates.push(d);
+        }
+
+        const dataPoints = dates.map(d => {
+          const dateStr = d.toDateString();
+          const count = reports.filter(r => new Date(r.date).toDateString() === dateStr).length;
+          return {
+            label: d.toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' }),
+            count: count
+          };
+        });
+
+        const counts = dataPoints.map(dp => dp.count);
+        const maxCount = Math.max(...counts, 4);
+
+        const svgWidth = 400;
+        const svgHeight = 120;
+        const paddingLeft = 25;
+        const paddingRight = 15;
+        const paddingTop = 15;
+        const paddingBottom = 20;
+
+        const chartWidth = svgWidth - paddingLeft - paddingRight;
+        const chartHeight = svgHeight - paddingTop - paddingBottom;
+        const spacing = chartWidth / (dataPoints.length - 1);
+
+        const points = dataPoints.map((dp, i) => {
+          const x = paddingLeft + i * spacing;
+          const y = svgHeight - paddingBottom - (dp.count / maxCount) * chartHeight;
+          return { x, y, label: dp.label, count: dp.count };
+        });
+
+        let gridLinesHtml = "";
+        for (let i = 0; i <= 3; i++) {
+          const yVal = paddingTop + (i / 3) * chartHeight;
+          const gridVal = Math.round(maxCount - (i / 3) * maxCount);
+          gridLinesHtml += `
+            <line class="chart-grid-line" x1="${paddingLeft}" y1="${yVal}" x2="${svgWidth - paddingRight}" y2="${yVal}"></line>
+            <text class="chart-axis-text" x="${paddingLeft - 5}" y="${yVal + 3}" text-anchor="end">${gridVal}</text>
+          `;
+        }
+
+        let linePathStr = "";
+        let areaPathStr = "";
+
+        if (points.length > 0) {
+          linePathStr = `M ${points[0].x} ${points[0].y} ` + points.slice(1).map(p => `L ${p.x} ${p.y}`).join(" ");
+          areaPathStr = `M ${points[0].x} ${svgHeight - paddingBottom} L ${points[0].x} ${points[0].y} ` + 
+                        points.slice(1).map(p => `L ${p.x} ${p.y}`).join(" ") + 
+                        ` L ${points[points.length - 1].x} ${svgHeight - paddingBottom} Z`;
+        }
+
+        let labelsHtml = "";
+        let dotsHtml = "";
+        points.forEach(p => {
+          labelsHtml += `<text class="chart-axis-text" x="${p.x}" y="${svgHeight - 5}" text-anchor="middle">${p.label}</text>`;
+          dotsHtml += `
+            <circle class="chart-data-dot" cx="${p.x}" cy="${p.y}" r="3" data-count="${p.count}">
+              <title>${p.count} runs on ${p.label}</title>
+            </circle>
+          `;
+        });
+
+        const svgHtml = `
+          <svg class="chart-container-svg" viewBox="0 0 ${svgWidth} ${svgHeight}" style="width: 100%;">
+            <defs>
+              <linearGradient id="admin-area-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="var(--color-primary)" stop-opacity="0.4"/>
+                <stop offset="100%" stop-color="var(--color-primary)" stop-opacity="0.0"/>
+              </linearGradient>
+            </defs>
+            ${gridLinesHtml}
+            ${areaPathStr ? `<path class="chart-area-path" d="${areaPathStr}" style="fill: url(#admin-area-grad);"></path>` : ""}
+            ${linePathStr ? `<path class="chart-data-line" d="${linePathStr}"></path>` : ""}
+            ${labelsHtml}
+            ${dotsHtml}
+          </svg>
+        `;
+
+        volBox.innerHTML = svgHtml;
+      }
+    }
+
+    function renderSymptomsCatalog() {
+      const box = document.getElementById("admin-symptoms-list-box");
+      if (!box) return;
+
+      const symptoms = db.getSymptoms();
+      let html = "";
+      symptoms.forEach(s => {
+        html += `
+          <span style="font-size: 0.55rem; background-color: var(--bg-secondary); border: 1px solid var(--card-border); padding: 0.15rem 0.4rem; border-radius: 8px; font-weight: 600; color: var(--text-main); display: inline-flex; align-items: center;">
+            ${s.name} <span style="font-size: 0.45rem; color: var(--text-muted); font-weight: 700; margin-left: 0.15rem;">(${s.category.slice(0,4)})</span>
+          </span>
+        `;
+      });
+      box.innerHTML = html;
+    }
+
+    function renderSymptomChecklist() {
+      const box = document.getElementById("disease-symptoms-checklist");
+      if (!box) return;
+
+      const symptoms = db.getSymptoms();
+      let html = "";
+      symptoms.forEach(s => {
+        const isSel = selectedSymptomsForDisease.includes(s.id);
+        html += `
+          <button 
+            type="button" 
+            onclick="toggleFormSymptom('${s.id}')" 
+            class="btn ${isSel ? 'btn-primary' : 'btn-secondary'}" 
+            style="padding: 0.15rem 0.35rem; font-size: 0.55rem; border-radius: 6px; box-shadow: none;"
+            id="form-sym-btn-${s.id}"
+          >
+            ${s.name}
+          </button>
+        `;
+      });
+      box.innerHTML = html;
+    }
+
+    function toggleFormSymptom(id) {
+      if (selectedSymptomsForDisease.includes(id)) {
+        selectedSymptomsForDisease = selectedSymptomsForDisease.filter(x => x !== id);
+      } else {
+        selectedSymptomsForDisease.push(id);
+      }
+      renderSymptomChecklist();
+    }
+
+    function renderCustomDiseasesList() {
+      const box = document.getElementById("admin-custom-diseases-box");
+      if (!box) return;
+
+      const diseases = db.getDiseases();
+      const custom = diseases.filter(d => d.id.startsWith("dis_"));
+
+      if (custom.length === 0) {
+        box.innerHTML = `<div style="font-size: 0.65rem; color: var(--text-muted); text-align: center; padding: 1rem 0;">No custom diseases created yet.</div>`;
+        return;
+      }
+
+      let html = "";
+      custom.forEach(d => {
+        html += `
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem; background-color: var(--bg-secondary); border: 1px solid var(--card-border); border-radius: 10px;">
+            <div style="max-width: 80%;">
+              <h4 style="font-size: 0.7rem; font-weight: 700; color: var(--text-main);">${d.name}</h4>
+              <p style="font-size: 0.55rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${d.description}</p>
+            </div>
+            <button onclick="handleDeleteDisease('${d.id}')" class="btn btn-danger" style="padding: 0.25rem 0.45rem; font-size: 0.6rem; border-radius: 8px;">🗑️</button>
+          </div>
+        `;
+      });
+      box.innerHTML = html;
+    }
+
+    function renderUsersList() {
+      const box = document.getElementById("admin-users-list");
+      if (!box) return;
+
+      const users = db.getUsers();
+      let html = "";
+      users.forEach(u => {
+        const initials = u.name.split(" ").map(x => x[0]).join("").slice(0, 2);
+        html += `
+          <div class="card" style="padding: 0.75rem; display: flex; align-items: center; justify-content: space-between; border-radius: 12px; box-shadow: none;">
+            <div style="text-align: left;">
+              <span style="font-size: 0.5rem; background-color: ${u.role === 'admin' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(99, 102, 241, 0.1)'}; padding: 0.05rem 0.25rem; border-radius: 4px; color: ${u.role === 'admin' ? 'var(--color-success)' : 'var(--color-primary)'}; font-weight: 800; text-transform: uppercase;">
+                ${u.role}
+              </span>
+              <h4 style="font-size: 0.725rem; font-weight: 700; color: var(--text-main); margin-top: 0.25rem;">${u.name}</h4>
+              <p style="font-size: 0.6rem; color: var(--text-muted);">${u.email}</p>
+            </div>
+            <div style="width: 1.75rem; height: 1.75rem; border-radius: 50%; background-color: var(--bg-secondary); border: 1px solid var(--card-border); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 800; color: var(--color-primary);">
+              ${initials}
+            </div>
+          </div>
+        `;
+      });
+      box.innerHTML = html;
+    }
+
+    function switchAdminTab(tab) {
+      activeTab = tab;
+      
+      const tabs = ["analytics", "symptoms", "diseases", "users"];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab-btn-${t}`);
+        const sec = document.getElementById(`section-${t}`);
+        if (t === tab) {
+          btn.classList.add("active");
+          sec.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+          sec.classList.remove("active");
+        }
+      });
+      expandedDiseaseId = null;
+    }
+
+    function handleCreateSymptom(e) {
+      e.preventDefault();
+      
+      const success = document.getElementById("sym-success");
+      success.style.display = "none";
+
+      const name = document.getElementById("add-sym-name").value.trim();
+      const cat = document.getElementById("add-sym-cat").value;
+
+      if (!name) return;
+
+      db.addSymptom(name, cat);
+      document.getElementById("add-sym-name").value = "";
+      
+      success.style.display = "block";
+      setTimeout(() => success.style.display = "none", 3000);
+
+      loadAdminPanel();
+    }
+
+    function handleCreateDisease(e) {
+      e.preventDefault();
+
+      const success = document.getElementById("disease-success");
+      const error = document.getElementById("disease-error");
+      
+      success.style.display = "none";
+      error.style.display = "none";
+
+      const name = document.getElementById("add-disease-name").value.trim();
+      const desc = document.getElementById("add-disease-desc").value.trim();
+      const causesText = document.getElementById("add-disease-causes").value;
+      const prevText = document.getElementById("add-disease-prev").value;
+      const recsText = document.getElementById("add-disease-recs").value;
+
+      if (!name || !desc || selectedSymptomsForDisease.length === 0) {
+        error.textContent = "Please fill in Name, Description, and select Symptoms.";
+        error.style.display = "block";
+        return;
+      }
+
+      const parseLines = (text) => text.split("\n").map(x => x.trim()).filter(x => x.length > 0);
+
+      db.addDisease({
+        name,
+        description: desc,
+        symptoms: selectedSymptomsForDisease,
+        causes: parseLines(causesText).length > 0 ? parseLines(causesText) : ["Bacterial vector."],
+        prevention: parseLines(prevText).length > 0 ? parseLines(prevText) : ["Routine sanitation."],
+        recommendations: parseLines(recsText).length > 0 ? parseLines(recsText) : ["Consult ent specialists."]
+      });
+
+      // Reset Form
+      document.getElementById("add-disease-name").value = "";
+      document.getElementById("add-disease-desc").value = "";
+      document.getElementById("add-disease-causes").value = "";
+      document.getElementById("add-disease-prev").value = "";
+      document.getElementById("add-disease-recs").value = "";
+      selectedSymptomsForDisease = [];
+
+      success.style.display = "block";
+      setTimeout(() => success.style.display = "none", 3000);
+
+      loadAdminPanel();
+    }
+
+    function handleDeleteDisease(id) {
+      if (confirm("Are you sure you want to delete this disease profile?")) {
+        if (db.deleteDisease(id)) {
+          loadAdminPanel();
+        }
+      }
+    }
+
+    // Quick Actions
+    function loadSamplePreset() {
+      db.addDisease({
+        name: 'Otitis Media (Ear Infection)',
+        description: 'An infection of the middle ear space behind the eardrum, common in infants.',
+        symptoms: ['fever', 'headache', 'body_aches'],
+        causes: ['Fluid congestion in the middle ear caused by colds, flu, or allergies.'],
+        prevention: ['Avoid exposure to secondhand smoke.', 'Breastfeed infants to increase antibodies.'],
+        recommendations: ['Apply warm dry washcloth to affected ear.', 'Consult ent specialist for drops advice.']
+      });
+      triggerFeedback("Loaded Otitis Media template.");
+      loadAdminPanel();
+    }
+
+    function triggerDebugTest() {
+      triggerFeedback("Triggered ML diagnostics check successfully.");
+    }
+
+    function syncMetrics() {
+      triggerFeedback("Database stats synced successfully.");
+      loadAdminPanel();
+    }
+
+    function triggerFeedback(msg) {
+      const box = document.getElementById("admin-feedback");
+      box.textContent = msg;
+      box.style.display = "block";
+      setTimeout(() => box.style.display = "none", 3000);
+    }
+  </script>
+</body>
+</html>

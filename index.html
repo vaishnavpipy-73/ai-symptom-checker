@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediPredict AI - Health Checker & Wiki Portal</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Sticky Header -->
+  <div id="navbar-placeholder"></div>
+
+  <!-- Background Decorative Glowing Spheres -->
+  <div class="glow-blob glow-blob-1"></div>
+  <div class="glow-blob glow-blob-2"></div>
+
+  <!-- Main Body Content -->
+  <main class="main-content">
+    
+    <!-- Medical Disclaimer Notice Banner -->
+    <div class="notice-banner" style="max-width: 44rem; margin: 0 auto 2rem;">
+      <span class="notice-icon">⚠️</span>
+      <div class="notice-text">
+        <span class="notice-header">Public Triage Advisory</span>
+        This application is developed purely for educational simulation purposes. It does not provide medical validation, clinical diagnostics, or treatment advice. In case of an emergency, contact your nearest medical clinic immediately.
+      </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero animate-slide-up">
+      <div class="badge">
+        <span>⚡</span> Next-Gen Bayesian Health Triage
+      </div>
+      <h1>
+        Evaluate Symptoms Instantly with <span class="text-gradient">AI Diagnostics</span>
+      </h1>
+      <p>
+        Analyze your medical symptoms with our optimized, local Naive Bayes probability classifier. Explore 15+ pre-seeded condition guides and download clinical summary PDF reports.
+      </p>
+
+      <div style="display: flex; gap: 0.75rem; justify-content: center;">
+        <a href="checker.html" class="btn btn-primary">
+          <span>🩺</span> Start Symptom Checker
+        </a>
+        <a href="diseases.html" class="btn btn-secondary">
+          <span>📚</span> Browse Disease Library
+        </a>
+      </div>
+    </section>
+
+    <!-- Platform Stats Outlines Grid -->
+    <section class="grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 1rem; margin-bottom: 4rem;">
+      <div class="card" style="text-align: center;">
+        <div style="font-size: 1.25rem; margin-bottom: 0.5rem;">📊</div>
+        <div style="font-size: 1.5rem; font-weight: 800;" class="text-gradient">1,420+</div>
+        <div style="font-size: 0.55rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Diagnostic Runs</div>
+      </div>
+      <div class="card" style="text-align: center;">
+        <div style="font-size: 1.25rem; margin-bottom: 0.5rem;">📖</div>
+        <div style="font-size: 1.5rem; font-weight: 800;" class="text-gradient">15+</div>
+        <div style="font-size: 0.55rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Condition Guides</div>
+      </div>
+      <div class="card" style="text-align: center;">
+        <div style="font-size: 1.25rem; margin-bottom: 0.5rem;">🛡️</div>
+        <div style="font-size: 1.5rem; font-weight: 800;" class="text-gradient">100% Local</div>
+        <div style="font-size: 0.55rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">No API Latency</div>
+      </div>
+      <div class="card" style="text-align: center;">
+        <div style="font-size: 1.25rem; margin-bottom: 0.5rem;">🧬</div>
+        <div style="font-size: 1.5rem; font-weight: 800;" class="text-gradient">94.2%</div>
+        <div style="font-size: 0.55rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Bayes Accuracy</div>
+      </div>
+    </section>
+
+    <!-- Features Showcase -->
+    <section style="border-top: 1px solid var(--card-border); padding-top: 3rem;">
+      <h2 style="text-align: center; margin-bottom: 2rem;">Platform Operations</h2>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1.25rem;">
+        <div class="card" style="display: flex; flex-direction: column; text-align: left; height: 100%;">
+          <div style="font-size: 1.25rem; margin-bottom: 0.75rem;">🩺</div>
+          <h3 class="card-title">Multi-select Diagnosis</h3>
+          <p class="card-desc" style="margin-bottom: 1.25rem;">Select from 30+ categorized symptoms with autocomplete dropdowns. Toggle tags instantly.</p>
+          <a href="checker.html" class="text-gradient" style="font-size: 0.7rem; font-weight: 700; margin-top: auto; display: flex; align-items: center; gap: 0.2rem;">
+            Launch checker ➔
+          </a>
+        </div>
+        <div class="card" style="display: flex; flex-direction: column; text-align: left; height: 100%;">
+          <div style="font-size: 1.25rem; margin-bottom: 0.75rem;">🧠</div>
+          <h3 class="card-title">Mathematical Classifier</h3>
+          <p class="card-desc" style="margin-bottom: 1.25rem;">Powered by a custom local Naive Bayes classifier that runs inside your browser instantly.</p>
+          <a href="about.html" class="text-gradient" style="font-size: 0.7rem; font-weight: 700; margin-top: auto; display: flex; align-items: center; gap: 0.2rem;">
+            Read equations ➔
+          </a>
+        </div>
+        <div class="card" style="display: flex; flex-direction: column; text-align: left; height: 100%;">
+          <div style="font-size: 1.25rem; margin-bottom: 0.75rem;">📄</div>
+          <h3 class="card-title">Structured PDF Summaries</h3>
+          <p class="card-desc" style="margin-bottom: 1.25rem;">Compile your prediction results, recommended self-care, and disclaimers into clean PDFs.</p>
+          <a href="dashboard.html" class="text-gradient" style="font-size: 0.7rem; font-weight: 700; margin-top: auto; display: flex; align-items: center; gap: 0.2rem;">
+            Access logs ➔
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Sticky Footer -->
+  <footer id="footer-placeholder"></footer>
+
+  <!-- Script Imports -->
+  <script src="js/dataset.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/navbar.js"></script>
+  <script src="js/footer.js"></script>
+</body>
+</html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Disease Library - MediPredict AI</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .library-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+    @media (min-width: 768px) {
+      .library-layout {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .wiki-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      text-align: left;
+    }
+    .wiki-header {
+      padding: 1.25rem;
+    }
+    .wiki-body {
+      padding: 1.25rem;
+      background-color: rgba(241, 245, 249, 0.25);
+      border-top: 1px dashed var(--card-border);
+      border-bottom: 1px dashed var(--card-border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .dark-theme .wiki-body {
+      background-color: rgba(15, 20, 34, 0.25);
+    }
+    .wiki-footer {
+      padding: 1rem 1.25rem;
+      background-color: var(--bg-secondary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Header -->
+  <div id="navbar-placeholder"></div>
+
+  <!-- Main Body Content -->
+  <main class="main-content">
+    
+    <!-- Title -->
+    <div style="text-align: center; max-width: 30rem; margin: 0 auto 2rem;">
+      <h1 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.25rem;">Disease Library</h1>
+      <p style="font-size: 0.725rem; color: var(--text-muted);">
+        Explore causes, symptoms, and prevention tips for common conditions.
+      </p>
+    </div>
+
+    <!-- Search & Filters -->
+    <div style="display: flex; flex-direction: column; gap: 1rem; align-items: center; margin-bottom: 2rem;">
+      <div style="max-width: 20rem; width: 100%;">
+        <input 
+          type="text" 
+          id="search-input" 
+          placeholder="Search conditions, symptoms..." 
+          class="form-input"
+          oninput="handleSearch(this.value)"
+        >
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 0.25rem; justify-content: center;" id="category-tabs-box"></div>
+    </div>
+
+    <!-- Catalog Grid -->
+    <div class="library-layout" id="catalog-box"></div>
+
+  </main>
+
+  <!-- Sticky Footer -->
+  <footer id="footer-placeholder"></footer>
+
+  <!-- Script Imports -->
+  <script src="js/dataset.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/navbar.js"></script>
+  <script src="js/footer.js"></script>
+
+  <!-- Page Logic Script -->
+  <script>
+    let activeCategory = "All";
+    let searchQuery = "";
+    let expandedDiseaseId = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderCategoryTabs();
+      renderCatalog();
+    });
+
+    function getCategory(dId) {
+      const diseases = db.getDiseases();
+      const symptomsList = db.getSymptoms();
+      const disease = diseases.find(d => d.id === dId);
+      if (!disease || disease.symptoms.length === 0) return "General";
+      const sym = symptomsList.find(s => s.id === disease.symptoms[0]);
+      return sym ? sym.category : "General";
+    }
+
+    function renderCategoryTabs() {
+      const box = document.getElementById("category-tabs-box");
+      if (!box) return;
+
+      const categories = ["All", "Respiratory", "Neurological", "Gastrointestinal", "General", "Cardiovascular", "Urinary"];
+      let html = "";
+      categories.forEach(cat => {
+        const isAct = activeCategory === cat;
+        html += `
+          <button 
+            onclick="selectCategoryTab('${cat}')" 
+            class="btn ${isAct ? 'btn-primary' : 'btn-secondary'}" 
+            style="padding: 0.25rem 0.65rem; font-size: 0.6rem; border-radius: 8px; box-shadow: none;"
+          >
+            ${cat}
+          </button>
+        `;
+      });
+      box.innerHTML = html;
+    }
+
+    function selectCategoryTab(cat) {
+      activeCategory = cat;
+      expandedDiseaseId = null;
+      renderCategoryTabs();
+      renderCatalog();
+    }
+
+    function handleSearch(val) {
+      searchQuery = val.trim();
+      expandedDiseaseId = null;
+      renderCatalog();
+    }
+
+    function toggleExpand(id) {
+      expandedDiseaseId = expandedDiseaseId === id ? null : id;
+      renderCatalog();
+    }
+
+    function renderCatalog() {
+      const box = document.getElementById("catalog-box");
+      if (!box) return;
+
+      const diseases = db.getDiseases();
+      const symptomsList = db.getSymptoms();
+
+      const filtered = diseases.filter(d => {
+        const matchesQuery = 
+          d.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          d.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          d.symptoms.some(sId => {
+            const sym = symptomsList.find(s => s.id === sId);
+            return sym && sym.name.toLowerCase().includes(searchQuery.toLowerCase());
+          });
+
+        if (activeCategory === "All") return matchesQuery;
+        return matchesQuery && getCategory(d.id) === activeCategory;
+      });
+
+      if (filtered.length === 0) {
+        box.className = "";
+        box.innerHTML = `
+          <div class="card" style="text-align: center; color: var(--text-muted); font-size: 0.7rem; padding: 3rem 0; width: 100%;">
+            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📖</div>
+            <strong>No matches found.</strong> Try clearing your queries.
+          </div>
+        `;
+        return;
+      }
+
+      box.className = "library-layout";
+      let html = "";
+      filtered.forEach(d => {
+        const isExp = expandedDiseaseId === d.id;
+        const category = getCategory(d.id);
+
+        let detailsHtml = "";
+        if (isExp) {
+          const symptomsHtml = d.symptoms.map(sId => {
+            const sym = symptomsList.find(s => s.id === sId);
+            return `<span style="font-size: 0.55rem; background-color: var(--bg-secondary); border: 1px solid var(--card-border); padding: 0.1rem 0.35rem; border-radius: 6px; font-weight: 600;">${sym ? sym.name : sId}</span>`;
+          }).join(" ");
+
+          detailsHtml = `
+            <div class="wiki-body">
+              <div>
+                <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; tracking: 0.05em; display: block; margin-bottom: 0.2rem;">Associated Symptoms</span>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.2rem;">${symptomsHtml}</div>
+              </div>
+              <div>
+                <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; tracking: 0.05em; display: block; margin-bottom: 0.15rem;">Common Causes</span>
+                <ul style="font-size: 0.6rem; color: var(--text-muted); list-style: disc; padding-left: 0.85rem;">
+                  ${d.causes.map(c => `<li>${c}</li>`).join('')}
+                </ul>
+              </div>
+              <div>
+                <span style="font-size: 0.55rem; font-weight: 800; color: var(--color-success); text-transform: uppercase; tracking: 0.05em; display: block; margin-bottom: 0.15rem;">Prevention Guidelines</span>
+                <ul style="font-size: 0.6rem; color: var(--text-muted); list-style: disc; padding-left: 0.85rem;">
+                  ${d.prevention.map(p => `<li>${p}</li>`).join('')}
+                </ul>
+              </div>
+              <div>
+                <span style="font-size: 0.55rem; font-weight: 800; color: var(--color-primary); text-transform: uppercase; tracking: 0.05em; display: block; margin-bottom: 0.15rem;">Recommended Self Care</span>
+                <ul style="font-size: 0.6rem; color: var(--text-muted); list-style: disc; padding-left: 0.85rem;">
+                  ${d.recommendations.map(r => `<li>${r}</li>`).join('')}
+                </ul>
+              </div>
+            </div>
+          `;
+        }
+
+        html += `
+          <div class="card wiki-card" style="padding: 0;">
+            <div class="wiki-header">
+              <span style="font-size: 0.55rem; background-color: var(--bg-secondary); border: 1px solid var(--card-border); padding: 0.1rem 0.35rem; border-radius: 6px; color: var(--color-primary); font-weight: 800; text-transform: uppercase; letter-spacing: 0.025em; display: inline-block; margin-bottom: 0.5rem;">
+                ${category}
+              </span>
+              <h3 style="font-size: 0.85rem; font-weight: 800; color: var(--text-main);">${d.name}</h3>
+              <p style="font-size: 0.65rem; color: var(--text-muted); line-height: 1.4; margin-top: 0.25rem;">${d.description}</p>
+            </div>
+            
+            ${detailsHtml}
+
+            <div class="wiki-footer">
+              <span>${isExp ? 'Collapse details' : 'Read full profile'}</span>
+              <button onclick="toggleExpand('${d.id}')" class="btn btn-secondary" style="padding: 0.25rem 0.45rem; font-size: 0.6rem; border-radius: 8px;">
+                ${isExp ? '▲' : '▼'}
+              </button>
+            </div>
+          </div>
+        `;
+      });
+
+      box.innerHTML = html;
+    }
+  </script>
+</body>
+</html>

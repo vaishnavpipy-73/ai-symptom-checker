@@ -1,0 +1,354 @@
+{
+  "symptoms": [
+    { "id": "fever", "name": "High Fever", "category": "General" },
+    { "id": "cough", "name": "Persistent Cough", "category": "Respiratory" },
+    { "id": "headache", "name": "Severe Headache", "category": "Neurological" },
+    { "id": "fatigue", "name": "Extreme Fatigue", "category": "General" },
+    { "id": "sore_throat", "name": "Sore Throat", "category": "Respiratory" },
+    { "id": "runny_nose", "name": "Runny or Stuffy Nose", "category": "Respiratory" },
+    { "id": "shortness_of_breath", "name": "Shortness of Breath", "category": "Respiratory" },
+    { "id": "body_aches", "name": "Muscle or Body Aches", "category": "General" },
+    { "id": "loss_of_taste_smell", "name": "Loss of Taste or Smell", "category": "Neurological" },
+    { "id": "nausea", "name": "Nausea or Vomiting", "category": "Gastrointestinal" },
+    { "id": "diarrhea", "name": "Watery Diarrhea", "category": "Gastrointestinal" },
+    { "id": "chest_pain", "name": "Chest Pain or Tightness", "category": "Cardiovascular" },
+    { "id": "dizziness", "name": "Dizziness or Lightheadedness", "category": "Neurological" },
+    { "id": "sneezing", "name": "Frequent Sneezing", "category": "Respiratory" },
+    { "id": "itchy_eyes", "name": "Itchy, Watery, or Red Eyes", "category": "General" },
+    { "id": "joint_pain", "name": "Joint Pain or Stiffness", "category": "General" },
+    { "id": "skin_rash", "name": "Skin Rash or Itching", "category": "Dermatological" },
+    { "id": "abdominal_pain", "name": "Abdominal Pain or Cramps", "category": "Gastrointestinal" },
+    { "id": "acid_reflux", "name": "Heartburn or Acid Reflux", "category": "Gastrointestinal" },
+    { "id": "frequent_urination", "name": "Frequent Urination", "category": "Urinary" },
+    { "id": "excessive_thirst", "name": "Excessive Thirst", "category": "General" },
+    { "id": "wheezing", "name": "Wheezing Sounds", "category": "Respiratory" },
+    { "id": "chills", "name": "Chills and Shivering", "category": "General" },
+    { "id": "sweating", "name": "Excessive Sweating", "category": "General" },
+    { "id": "stiff_neck", "name": "Stiff Neck", "category": "Neurological" },
+    { "id": "anxiety", "name": "Anxiety or Heart Palpitations", "category": "Neurological" },
+    { "id": "insomnia", "name": "Insomnia or Sleep Disturbances", "category": "General" },
+    { "id": "weight_loss", "name": "Unexplained Weight Loss", "category": "General" },
+    { "id": "bloating", "name": "Bloating and Gas", "category": "Gastrointestinal" },
+    { "id": "constipation", "name": "Constipation", "category": "Gastrointestinal" }
+  ],
+  "diseases": [
+    {
+      "id": "influenza",
+      "name": "Influenza (Flu)",
+      "description": "A highly contagious viral infection that attacks your respiratory system, including nose, throat and lungs. It is common during seasonal cycles.",
+      "symptoms": ["fever", "cough", "fatigue", "sore_throat", "runny_nose", "body_aches", "chills", "headache"],
+      "causes": [
+        "Influenza viruses (primarily types A and B) spreading through droplets when infected people cough, sneeze, or talk.",
+        "Touching surfaces contaminated with the virus and then touching your eyes, nose, or mouth."
+      ],
+      "prevention": [
+        "Get an annual flu vaccination.",
+        "Wash your hands frequently with soap and water.",
+        "Avoid close contact with people who are sick."
+      ],
+      "recommendations": [
+        "Get plenty of rest to help your body fight the infection.",
+        "Drink lots of fluids (water, broth, herbal tea) to prevent dehydration.",
+        "Use over-the-counter pain relievers like acetaminophen or ibuprofen for fever and aches.",
+        "Consult a doctor for antiviral prescription medications if symptoms are severe."
+      ]
+    },
+    {
+      "id": "covid_19",
+      "name": "COVID-19",
+      "description": "An infectious respiratory illness caused by the SARS-CoV-2 virus, which can lead to mild to severe symptoms and affect multiple organ systems.",
+      "symptoms": ["fever", "cough", "fatigue", "loss_of_taste_smell", "shortness_of_breath", "sore_throat", "body_aches", "headache", "chills"],
+      "causes": [
+        "SARS-CoV-2 virus transmitted through respiratory droplets, aerosols, or close contact.",
+        "Inhaling droplets from an infected individual coughing, sneezing, or speaking."
+      ],
+      "prevention": [
+        "Stay up-to-date with COVID-19 vaccinations.",
+        "Wear masks in crowded or poorly ventilated indoor spaces.",
+        "Maintain physical distancing from others.",
+        "Wash hands frequently and use hand sanitizer."
+      ],
+      "recommendations": [
+        "Self-isolate to prevent spreading the virus to others.",
+        "Monitor your oxygen levels and symptoms closely.",
+        "Seek immediate medical attention if you experience difficulty breathing, chest pain, or blue lips.",
+        "Rest, stay hydrated, and take fever reducers if symptoms remain mild."
+      ]
+    },
+    {
+      "id": "common_cold",
+      "name": "Common Cold",
+      "description": "A mild viral infection of the nose and throat, characterized by nasal congestion, sneezing, and runny nose, typically resolving in 7-10 days.",
+      "symptoms": ["cough", "sore_throat", "runny_nose", "sneezing", "headache", "fatigue"],
+      "causes": [
+        "Over 200 strains of viruses, most commonly Rhinoviruses.",
+        "Airborne droplets or direct contact with secretions of an infected person."
+      ],
+      "prevention": [
+        "Wash hands frequently and avoid touching your face.",
+        "Disinfect frequently touched surfaces.",
+        "Avoid sharing cups, utensils, or towels with sick individuals."
+      ],
+      "recommendations": [
+        "Stay warm and rest.",
+        "Inhale steam or use saline nasal sprays to relieve congestion.",
+        "Stay hydrated with water or warm soups.",
+        "Sargle with warm salt water to soothe a sore throat."
+      ]
+    },
+    {
+      "id": "migraine",
+      "name": "Migraine Headache",
+      "description": "A neurological condition characterized by intense, throbbing headaches, often accompanied by nausea, vomiting, and sensitivity to light and sound.",
+      "symptoms": ["headache", "nausea", "dizziness", "fatigue"],
+      "causes": [
+        "Genetic factors and environmental triggers affecting brain activity and blood vessels.",
+        "Triggers like stress, hormonal changes, certain foods, lack of sleep, or bright lights."
+      ],
+      "prevention": [
+        "Identify and avoid known migraine triggers.",
+        "Maintain a consistent sleep, eating, and exercise schedule.",
+        "Practice stress management techniques (e.g., meditation, yoga)."
+      ],
+      "recommendations": [
+        "Rest in a quiet, dark, and cool room when an attack begins.",
+        "Apply a cold compress or ice pack to your forehead or neck.",
+        "Take prescribed triptans or over-the-counter pain relievers early in the attack.",
+        "Stay hydrated and avoid caffeine spikes."
+      ]
+    },
+    {
+      "id": "asthma",
+      "name": "Bronchial Asthma",
+      "description": "A chronic condition that affects the airways in the lungs, causing them to become inflamed, narrow, and produce extra mucus, making breathing difficult.",
+      "symptoms": ["cough", "shortness_of_breath", "wheezing", "chest_pain"],
+      "causes": [
+        "A combination of genetic predisposition and environmental exposure to allergens.",
+        "Triggers such as pollen, dust mites, pet dander, exercise, cold air, or smoke."
+      ],
+      "prevention": [
+        "Avoid triggers like cigarette smoke, dust, and pollen.",
+        "Use prescribed preventative inhalers consistently.",
+        "Get vaccinated against respiratory infections."
+      ],
+      "recommendations": [
+        "Always carry a quick-relief rescue inhaler (albuterol).",
+        "Monitor your breathing using a peak flow meter if advised.",
+        "Follow a customized Asthma Action Plan created with your doctor.",
+        "Seek emergency medical help if breathing difficulty rapidly worsens."
+      ]
+    },
+    {
+      "id": "diabetes",
+      "name": "Type 2 Diabetes",
+      "description": "A chronic metabolic condition characterized by high levels of blood glucose, occurring when the body becomes resistant to insulin or doesn't make enough.",
+      "symptoms": ["frequent_urination", "excessive_thirst", "fatigue", "weight_loss"],
+      "causes": [
+        "Insulin resistance where body cells do not respond effectively to insulin.",
+        "Genetic predisposition, overweight, physical inactivity, and poor diet."
+      ],
+      "prevention": [
+        "Maintain a healthy body weight.",
+        "Engage in regular physical activity (at least 150 minutes per week).",
+        "Eat a balanced diet high in fiber and low in refined sugars."
+      ],
+      "recommendations": [
+        "Monitor blood sugar levels regularly.",
+        "Take prescribed oral medications or insulin as directed.",
+        "Schedule regular checkups to monitor kidney, eye, and cardiovascular health.",
+        "Work with a nutritionist to create a balanced meal plan."
+      ]
+    },
+    {
+      "id": "gerd",
+      "name": "GERD (Acid Reflux)",
+      "description": "Gastroesophageal reflux disease occurs when stomach acid frequently flows back into the tube connecting your mouth and stomach, irritating the lining.",
+      "symptoms": ["acid_reflux", "abdominal_pain", "bloating", "chest_pain"],
+      "causes": [
+        "Weakness or relaxation of the lower esophageal sphincter (LES).",
+        "Hiatal hernia, obesity, pregnancy, smoking, or eating large meals right before lying down."
+      ],
+      "prevention": [
+        "Avoid trigger foods like spicy, fatty, acidic foods, caffeine, and chocolate.",
+        "Eat smaller, more frequent meals.",
+        "Do not lie down for at least 3 hours after eating.",
+        "Elevate the head of your bed by 6 inches."
+      ],
+      "recommendations": [
+        "Take antacids, H2 blockers, or proton pump inhibitors (PPIs) as recommended by a doctor.",
+        "Avoid tight-fitting clothing around the waist.",
+        "Quit smoking, as nicotine weakens the esophageal sphincter.",
+        "Maintain a healthy weight."
+      ]
+    },
+    {
+      "id": "hypertension",
+      "name": "Hypertension (High Blood Pressure)",
+      "description": "A common condition in which the long-term force of the blood against your artery walls is high enough that it may eventually cause heart disease or stroke.",
+      "symptoms": ["headache", "dizziness", "chest_pain", "fatigue"],
+      "causes": [
+        "Primary hypertension: Develops gradually over many years with no identifiable cause.",
+        "Secondary hypertension: Caused by conditions like kidney disease, thyroid problems, or medications.",
+        "Risk factors include age, family history, high salt intake, stress, and lack of exercise."
+      ],
+      "prevention": [
+        "Limit sodium (salt) intake in your diet.",
+        "Exercise regularly and manage stress.",
+        "Limit alcohol consumption and avoid smoking."
+      ],
+      "recommendations": [
+        "Monitor your blood pressure at home regularly.",
+        "Take prescribed blood pressure medications consistently.",
+        "Adopt the DASH (Dietary Approaches to Stop Hypertension) diet.",
+        "Consult your cardiologist for routine heart checks."
+      ]
+    },
+    {
+      "id": "food_poisoning",
+      "name": "Food Poisoning",
+      "description": "An illness caused by eating contaminated, spoiled, or toxic food, resulting in acute gastrointestinal distress.",
+      "symptoms": ["nausea", "diarrhea", "abdominal_pain", "fever", "fatigue"],
+      "causes": [
+        "Bacteria (such as Salmonella, E. coli, Listeria), viruses (Norovirus), or parasites in undercooked or improperly stored food.",
+        "Poor hygiene during food preparation."
+      ],
+      "prevention": [
+        "Keep hands, utensils, and food preparation surfaces clean.",
+        "Separate raw meats from other foods.",
+        "Cook foods to safe internal temperatures.",
+        "Refrigerate perishable foods promptly within 2 hours."
+      ],
+      "recommendations": [
+        "Drink plenty of electrolyte solutions, water, or broth to replace lost fluids.",
+        "Avoid solid foods for a few hours until the stomach settles.",
+        "Gradually reintroduce bland foods like bananas, rice, applesauce, and toast (BRAT diet).",
+        "Seek medical care if you show signs of severe dehydration, high fever, or blood in stool."
+      ]
+    },
+    {
+      "id": "allergic_rhinitis",
+      "name": "Allergic Rhinitis (Allergies)",
+      "description": "An allergic response causing itchy eyes, sneezing, runny nose, and nasal congestion, triggered by indoor or outdoor allergens.",
+      "symptoms": ["runny_nose", "sneezing", "itchy_eyes", "sore_throat", "fatigue"],
+      "causes": [
+        "Hypersensitivity of the immune system to harmless substances like pollen, dust mites, pet dander, or mold spores."
+      ],
+      "prevention": [
+        "Keep windows closed during high pollen seasons.",
+        "Use allergen-proof covers on pillows and mattresses.",
+        "Wash hands after petting animals.",
+        "Keep indoor humidity low to prevent mold."
+      ],
+      "recommendations": [
+        "Use over-the-counter antihistamines or nasal corticosteroid sprays.",
+        "Perform nasal irrigation using a saline rinse (e.g., neti pot).",
+        "Avoid outdoor activities in the early morning when pollen counts are highest.",
+        "Consider allergy shots (immunotherapy) if symptoms are severe and chronic."
+      ]
+    },
+    {
+      "id": "gastroenteritis",
+      "name": "Gastroenteritis (Stomach Flu)",
+      "description": "An inflammation of the stomach and intestines, typically caused by a viral infection, resulting in vomiting, diarrhea, and cramps.",
+      "symptoms": ["nausea", "diarrhea", "abdominal_pain", "fever", "chills", "headache"],
+      "causes": [
+        "Viruses such as Norovirus or Rotavirus spreading via contaminated food, water, or contact with infected individuals."
+      ],
+      "prevention": [
+        "Wash hands thoroughly, especially after using the restroom or changing diapers.",
+        "Disinfect contaminated surfaces immediately.",
+        "Avoid raw or undercooked foods in regions with outbreaks."
+      ],
+      "recommendations": [
+        "Hydration is key; drink oral rehydration salts (ORS), sports drinks, or diluted juices.",
+        "Eat small amounts of bland foods once vomiting stops.",
+        "Avoid dairy, caffeine, alcohol, nicotine, and highly seasoned foods.",
+        "Avoid taking anti-diarrheal medications without consulting a doctor, as they can prolong some infections."
+      ]
+    },
+    {
+      "id": "bronchitis",
+      "name": "Acute Bronchitis",
+      "description": "An inflammation of the lining of your bronchial tubes, which carry air to and from your lungs, often developing after a cold or flu.",
+      "symptoms": ["cough", "fatigue", "chest_pain", "shortness_of_breath", "wheezing", "sore_throat"],
+      "causes": [
+        "Usually viruses (the same ones that cause colds and flu); occasionally bacteria.",
+        "Exposure to tobacco smoke, dust, fumes, or air pollution."
+      ],
+      "prevention": [
+        "Avoid cigarette smoke and air pollutants.",
+        "Wear a mask when exposed to high dust or chemical levels.",
+        "Get seasonal flu shots."
+      ],
+      "recommendations": [
+        "Use a humidifier or inhale steam to loosen mucus.",
+        "Rest and drink warm liquids.",
+        "Take cough suppressants if the cough keeps you awake at night.",
+        "If wheezing is present, a doctor may prescribe an inhaled bronchodilator."
+      ]
+    },
+    {
+      "id": "urinary_tract_infection",
+      "name": "Urinary Tract Infection (UTI)",
+      "description": "An infection in any part of your urinary system, most commonly involving the bladder and the urethra.",
+      "symptoms": ["frequent_urination", "abdominal_pain", "fever", "fatigue"],
+      "causes": [
+        "Bacteria (typically E. coli) entering the urinary tract through the urethra and multiplying in the bladder.",
+        "Risk factors include female anatomy, sexual activity, and certain types of birth control."
+      ],
+      "prevention": [
+        "Drink plenty of water to help flush out bacteria.",
+        "Wipe from front to back after urinating or having a bowel movement.",
+        "Urinate shortly after sexual intercourse.",
+        "Avoid irritating feminine products."
+      ],
+      "recommendations": [
+        "Consult a doctor immediately for prescription antibiotics (UTIs rarely clear up without them).",
+        "Use a heating pad on your abdomen to relieve cramping.",
+        "Drink cranberry juice, though evidence of its effectiveness is mixed, hydration is always good.",
+        "Complete the full course of antibiotics even if symptoms improve."
+      ]
+    },
+    {
+      "id": "anxiety_disorder",
+      "name": "Generalized Anxiety Disorder",
+      "description": "A mental health condition characterized by persistent, excessive, and unrealistic worry about everyday things, which can manifest physically.",
+      "symptoms": ["anxiety", "dizziness", "insomnia", "sweating", "chest_pain", "fatigue"],
+      "causes": [
+        "A complex interaction of genetics, brain chemistry, personality, and life events/stressors."
+      ],
+      "prevention": [
+        "Incorporate regular aerobic exercise into your routine.",
+        "Limit caffeine and alcohol, which can worsen anxiety.",
+        "Practice relaxation exercises daily."
+      ],
+      "recommendations": [
+        "Engage in Cognitive Behavioral Therapy (CBT) with a licensed therapist.",
+        "Use deep breathing techniques during acute anxiety spikes.",
+        "Establish a solid sleep routine.",
+        "Consult a medical professional regarding prescription selective serotonin reuptake inhibitors (SSRIs) or beta-blockers."
+      ]
+    },
+    {
+      "id": "sleep_apnea",
+      "name": "Obstructive Sleep Apnea",
+      "description": "A potentially serious sleep disorder in which breathing repeatedly stops and starts during sleep due to throat muscles relaxing.",
+      "symptoms": ["insomnia", "fatigue", "headache", "shortness_of_breath"],
+      "causes": [
+        "Relaxation of throat muscles blocking the airway during sleep.",
+        "Risk factors include obesity, thick neck circumference, narrowed airway, male sex, and alcohol use."
+      ],
+      "prevention": [
+        "Maintain a healthy weight.",
+        "Avoid alcohol and sleeping pills, which relax throat muscles.",
+        "Sleep on your side instead of your back."
+      ],
+      "recommendations": [
+        "Use a CPAP (Continuous Positive Airway Pressure) machine as prescribed by a sleep specialist.",
+        "Consider oral appliances designed to keep the throat open.",
+        "Avoid smoking, as it increases inflammation and fluid retention in the upper airway.",
+        "Discuss surgical options with your doctor if other treatments fail."
+      ]
+    }
+  ]
+}

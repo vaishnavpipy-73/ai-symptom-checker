@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clinical Symptom Checker - MediPredict AI</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <!-- jsPDF CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    .checker-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    @media (min-width: 992px) {
+      .checker-layout {
+        grid-template-columns: 260px 1fr 320px;
+      }
+    }
+    @media (min-width: 768px) and (max-width: 991px) {
+      .checker-layout {
+        grid-template-columns: 2fr 3fr;
+      }
+    }
+    .suggestion-item-active {
+      background-color: var(--bg-secondary);
+      color: var(--color-primary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Header -->
+  <div id="navbar-placeholder"></div>
+
+  <!-- Main Body Content -->
+  <main class="main-content" style="max-width: 70rem;">
+    
+    <!-- Title -->
+    <div style="text-align: center; max-width: 30rem; margin: 0 auto 1.5rem;">
+      <h1 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 0.2rem;">Symptom Checker</h1>
+      <p style="font-size: 0.725rem; color: var(--text-muted);">
+        Enter medical risk parameters, select indicators, and audit model calculations.
+      </p>
+    </div>
+
+    <!-- Triage Warning -->
+    <div class="notice-banner" style="margin-bottom: 2rem;">
+      <span class="notice-icon">⚠️</span>
+      <div class="notice-text">
+        <span class="notice-header">Triage Advisory Notice</span>
+        Predictions represent mathematical matches and do not substitute clinical diagnostic consultations. If you are experiencing chest tightness, sudden numbness, or acute pain, call local emergency services immediately.
+      </div>
+    </div>
+
+    <!-- Core Grid Layout -->
+    <div class="checker-layout">
+      
+      <!-- Column 1: Clickable SVG Anatomical Human body map (Left) -->
+      <div class="card" style="text-align: center; display: flex; flex-direction: column; gap: 0.75rem;">
+        <span class="form-label" style="text-align: center; display: block; margin-bottom: 0.5rem;">Anatomical Filter</span>
+        
+        <div class="body-map-container">
+          <svg class="body-map-svg" viewBox="0 0 100 220" xmlns="http://www.w3.org/2000/svg">
+            <!-- Head & Neck -->
+            <path d="M42,10 C42,4 58,4 58,10 C58,15 54,20 50,22 C46,20 42,15 42,10" 
+                  class="body-part-path" id="part-head" onclick="selectBodyPart('head')" title="Head & Neck"></path>
+            <!-- Neck connection -->
+            <rect x="47" y="22" width="6" height="5" class="body-part-path" id="part-neck" onclick="selectBodyPart('head')"></rect>
+            
+            <!-- Chest / Upper Torso -->
+            <path d="M30,27 L70,27 L72,55 L65,70 L35,70 L28,55 Z" 
+                  class="body-part-path" id="part-chest" onclick="selectBodyPart('chest')" title="Chest & Lungs"></path>
+            
+            <!-- Abdomen / Pelvis -->
+            <path d="M35,70 L65,70 L68,110 L32,110 Z" 
+                  class="body-part-path" id="part-abdomen" onclick="selectBodyPart('abdomen')" title="Gastrointestinal / Pelvis"></path>
+            
+            <!-- Limbs (Arms & Legs) -->
+            <!-- Left Arm -->
+            <path d="M28,27 L18,50 L12,85 L18,87 L24,53 L28,45 Z" 
+                  class="body-part-path" id="part-larm" onclick="selectBodyPart('limbs')" title="Limbs (Arms/Legs)"></path>
+            <!-- Right Arm -->
+            <path d="M72,27 L82,50 L88,85 L82,87 L76,53 L72,45 Z" 
+                  class="body-part-path" id="part-rarm" onclick="selectBodyPart('limbs')" title="Limbs (Arms/Legs)"></path>
+            
+            <!-- Left Leg -->
+            <path d="M32,110 L36,160 L39,210 L31,212 L27,162 L32,110" 
+                  class="body-part-path" id="part-lleg" onclick="selectBodyPart('limbs')" title="Limbs (Arms/Legs)"></path>
+            <!-- Right Leg -->
+            <path d="M68,110 L64,160 L61,210 L69,212 L73,162 L68,110" 
+                  class="body-part-path" id="part-rleg" onclick="selectBodyPart('limbs')" title="Limbs (Arms/Legs)"></path>
+          </svg>
+        </div>
+
+        <button onclick="selectBodyPart('all')" class="btn btn-secondary" style="font-size: 0.55rem; width: 100%; border-radius: 8px;" id="reset-part-btn">
+          Show All Symptoms
+        </button>
+      </div>
+      
+      <!-- Column 2: Autocomplete Inputs & Risk Controls (Middle) -->
+      <div class="card" style="text-align: left; display: flex; flex-direction: column; gap: 1.25rem;">
+        
+        <!-- Risk Parameters Box -->
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; background-color: rgba(241, 245, 249, 0.2); border: 1px solid var(--card-border); padding: 1rem; border-radius: 14px;">
+          <span class="form-label" style="display: block; margin-bottom: 0.15rem;">Patient Risk Factors</span>
+          
+          <!-- Age Group -->
+          <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+            <label style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">Age Group</label>
+            <div class="segmented-control" id="age-segmented">
+              <button onclick="setRiskFactor('age', 'child')" class="segmented-btn" id="age-child">Child</button>
+              <button onclick="setRiskFactor('age', 'adult')" class="segmented-btn active" id="age-adult">Adult</button>
+              <button onclick="setRiskFactor('age', 'senior')" class="segmented-btn" id="age-senior">Senior</button>
+            </div>
+          </div>
+
+          <!-- Gender Toggle -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+              <label style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">Gender</label>
+              <div class="segmented-control" id="gender-segmented">
+                <button onclick="setRiskFactor('gender', 'male')" class="segmented-btn" id="gender-male">Male</button>
+                <button onclick="setRiskFactor('gender', 'female')" class="segmented-btn active" id="gender-female">Female</button>
+              </div>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+              <label style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">Duration</label>
+              <div class="segmented-control" id="duration-segmented">
+                <button onclick="setRiskFactor('duration', 'short')" class="segmented-btn" id="duration-short">&lt;24h</button>
+                <button onclick="setRiskFactor('duration', 'medium')" class="segmented-btn active" id="duration-medium">1-3d</button>
+                <button onclick="setRiskFactor('duration', 'long')" class="segmented-btn" id="duration-long">&gt;3d</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Autocomplete Search -->
+        <div class="form-group" style="position: relative;">
+          <label class="form-label">Search / Type Symptoms</label>
+          <div class="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input 
+              type="text" 
+              id="symptom-search" 
+              placeholder="Type e.g., Cough, Headache, Fever..." 
+              class="form-input"
+              oninput="handleSearchInput(this.value)"
+              onfocus="toggleSuggestions(true)"
+            >
+          </div>
+          <div class="suggestions-dropdown" id="suggestions-box" style="display: none;"></div>
+        </div>
+
+        <!-- Selected Tags -->
+        <div class="form-group">
+          <label class="form-label">Selected Indicators</label>
+          <div class="chips-container" id="chips-box">
+            <div style="width: 100%; text-align: center; font-size: 0.7rem; color: var(--text-muted); padding-top: 0.5rem;" id="no-chips-notice">
+              No symptoms selected yet.
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Select list -->
+        <div style="border-top: 1px solid var(--card-border); padding-top: 1rem;">
+          <label class="form-label" style="margin-bottom: 0.75rem; display: block;" id="quick-catalog-label">Quick Select Catalog (All)</label>
+          <div style="max-height: 9rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem;" id="category-picker-box"></div>
+        </div>
+
+        <!-- Action Row -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--card-border); padding-top: 1rem;">
+          <button onclick="clearChecker()" class="btn btn-secondary" style="font-size: 0.65rem;">Clear All</button>
+          <button id="predict-trigger" onclick="runPredictionDiagnostics()" class="btn btn-primary" style="font-size: 0.65rem;" disabled>
+            <span>🧠</span> Run Diagnostics
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Column 3: Diagnostic Results & Math Breakdown (Right) -->
+      <div class="card" style="text-align: left; display: flex; flex-direction: column; justify-content: space-between; min-height: 25rem;" id="results-card">
+        
+        <!-- Results area -->
+        <div id="results-display-area" style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--text-muted);">
+          <div style="font-size: 2.25rem; margin-bottom: 0.5rem;">🩺</div>
+          <h3 style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">Diagnostics Inactive</h3>
+          <p style="font-size: 0.65rem; text-align: center; max-width: 11rem; margin-top: 0.2rem;">Select symptoms and run model on the left.</p>
+        </div>
+
+        <!-- Actions -->
+        <div id="results-actions-area" style="display: none; border-top: 1px solid var(--card-border); padding-top: 1rem; flex-direction: column; gap: 0.5rem;">
+          <button id="save-report-btn" onclick="saveActiveReport()" class="btn btn-primary" style="width: 100%; font-size: 0.65rem;">
+            <span>💾</span> Save to Dashboard
+          </button>
+          <button onclick="downloadReportPDF()" class="btn btn-secondary" style="width: 100%; font-size: 0.65rem;">
+            <span>📄</span> Download Report PDF
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Sticky Footer -->
+  <footer id="footer-placeholder"></footer>
+
+  <!-- Script Imports -->
+  <script src="js/dataset.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/mlClassifier.js"></script>
+  <script src="js/pdfGenerator.js"></script>
+  <script src="js/navbar.js"></script>
+  <script src="js/footer.js"></script>
+
+  <!-- Page Logic Script -->
+  <script>
+    let selectedSymptomIds = [];
+    let currentPredictions = null;
+    let activeReportObj = null;
+    
+    // Risk Factors State variables
+    let patientAgeGroup = "adult";
+    let patientGender = "female";
+    let patientDuration = "medium";
+    let selectedBodyPart = "all";
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderCategoryPicker();
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest("#symptom-search") && !e.target.closest("#suggestions-box")) {
+          toggleSuggestions(false);
+        }
+      });
+    });
+
+    function setRiskFactor(type, val) {
+      if (type === 'age') {
+        patientAgeGroup = val;
+        ["child", "adult", "senior"].forEach(v => {
+          document.getElementById(`age-${v}`).classList.toggle("active", v === val);
+        });
+      } else if (type === 'gender') {
+        patientGender = val;
+        ["male", "female"].forEach(v => {
+          document.getElementById(`gender-${v}`).classList.toggle("active", v === val);
+        });
+      } else if (type === 'duration') {
+        patientDuration = val;
+        ["short", "medium", "long"].forEach(v => {
+          document.getElementById(`duration-${v}`).classList.toggle("active", v === val);
+        });
+      }
+      
+      // Auto re-run prediction if results are active, representing advanced automation
+      if (currentPredictions) {
+        runPredictionDiagnostics();
+      }
+    }
+
+    function selectBodyPart(part) {
+      selectedBodyPart = part;
+      
+      // Highlight SVG Paths
+      const mapPaths = {
+        head: ["part-head", "part-neck"],
+        chest: ["part-chest"],
+        abdomen: ["part-abdomen"],
+        limbs: ["part-larm", "part-rarm", "part-lleg", "part-rleg"]
+      };
+
+      // Reset all outlines
+      document.querySelectorAll(".body-part-path").forEach(path => {
+        path.classList.remove("selected");
+      });
+
+      // Highlight selected regions
+      if (part !== "all") {
+        mapPaths[part].forEach(id => {
+          const path = document.getElementById(id);
+          if (path) path.classList.add("selected");
+        });
+        document.getElementById("quick-catalog-label").textContent = `Quick Select Catalog (${capitalize(part)})`;
+      } else {
+        document.getElementById("quick-catalog-label").textContent = `Quick Select Catalog (All)`;
+      }
+
+      renderCategoryPicker();
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function renderCategoryPicker() {
+      const box = document.getElementById("category-picker-box");
+      if (!box) return;
+
+      const symptoms = db.getSymptoms();
+      
+      // Filter list based on selected bodyPart mapping
+      const filteredSymptoms = selectedBodyPart === "all" 
+        ? symptoms 
+        : symptoms.filter(s => s.bodyPart === selectedBodyPart);
+
+      if (filteredSymptoms.length === 0) {
+        box.innerHTML = `<div style="font-size: 0.65rem; color: var(--text-muted); text-align: center; padding: 1rem 0;">No symptoms mapped in this body part.</div>`;
+        return;
+      }
+
+      const catGroup = filteredSymptoms.reduce((acc, s) => {
+        if (!acc[s.category]) acc[s.category] = [];
+        acc[s.category].push(s);
+        return acc;
+      }, {});
+
+      let html = "";
+      Object.entries(catGroup).forEach(([category, list]) => {
+        let badgeHtml = "";
+        list.forEach(s => {
+          const isSel = selectedSymptomIds.includes(s.id);
+          badgeHtml += `
+            <button 
+              type="button" 
+              onclick="toggleSymptom('${s.id}')" 
+              class="btn ${isSel ? 'btn-primary' : 'btn-secondary'}" 
+              style="padding: 0.2rem 0.5rem; font-size: 0.6rem; border-radius: 8px; box-shadow: none;"
+              id="cat-btn-${s.id}"
+            >
+              ${s.name}
+            </button>
+          `;
+        });
+
+        html += `
+          <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+            <h5 style="font-size: 0.55rem; color: var(--text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em;">${category}</h5>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.25rem;">
+              ${badgeHtml}
+            </div>
+          </div>
+        `;
+      });
+
+      box.innerHTML = html;
+    }
+
+    function toggleSymptom(id) {
+      if (selectedSymptomIds.includes(id)) {
+        selectedSymptomIds = selectedSymptomIds.filter(x => x !== id);
+      } else {
+        selectedSymptomIds.push(id);
+      }
+      
+      currentPredictions = null;
+      activeReportObj = null;
+      document.getElementById("results-actions-area").style.display = "none";
+      resetResultsPlaceholder();
+      
+      updateChips();
+      renderCategoryPicker();
+      
+      const btn = document.getElementById("predict-trigger");
+      btn.disabled = selectedSymptomIds.length === 0;
+    }
+
+    function toggleSuggestions(show) {
+      const box = document.getElementById("suggestions-box");
+      if (box) box.style.display = show ? "block" : "none";
+    }
+
+    function handleSearchInput(val) {
+      const box = document.getElementById("suggestions-box");
+      if (!box) return;
+
+      if (!val.trim()) {
+        box.style.display = "none";
+        return;
+      }
+
+      const symptoms = db.getSymptoms();
+      const filtered = symptoms.filter(s => 
+        s.name.toLowerCase().includes(val.toLowerCase()) && 
+        !selectedSymptomIds.includes(s.id)
+      );
+
+      if (filtered.length === 0) {
+        box.innerHTML = `<div style="padding: 0.5rem; font-size: 0.65rem; color: var(--text-muted); text-align: center;">No matches found</div>`;
+      } else {
+        let html = "";
+        filtered.forEach(s => {
+          html += `
+            <button 
+              onclick="selectSymptomFromSearch('${s.id}')" 
+              class="suggestion-item"
+            >
+              ${s.name} <span style="font-size: 0.55rem; color: var(--text-muted);">(${s.category})</span>
+            </button>
+          `;
+        });
+        box.innerHTML = html;
+      }
+      box.style.display = "block";
+    }
+
+    function selectSymptomFromSearch(id) {
+      toggleSymptom(id);
+      const input = document.getElementById("symptom-search");
+      input.value = "";
+      toggleSuggestions(false);
+    }
+
+    function updateChips() {
+      const box = document.getElementById("chips-box");
+      if (!box) return;
+
+      if (selectedSymptomIds.length === 0) {
+        box.innerHTML = `
+          <div style="width: 100%; text-align: center; font-size: 0.7rem; color: var(--text-muted); padding-top: 0.5rem;" id="no-chips-notice">
+            No symptoms selected yet.
+          </div>
+        `;
+        return;
+      }
+
+      const symptomsList = db.getSymptoms();
+      let html = "";
+      selectedSymptomIds.forEach(id => {
+        const sym = symptomsList.find(s => s.id === id);
+        html += `
+          <span class="chip">
+            <span>${sym ? sym.name : id}</span>
+            <button onclick="toggleSymptom('${id}')" class="chip-close">✕</button>
+          </span>
+        `;
+      });
+      box.innerHTML = html;
+    }
+
+    function resetResultsPlaceholder() {
+      const area = document.getElementById("results-display-area");
+      area.innerHTML = `
+        <div style="font-size: 2.25rem; margin-bottom: 0.5rem;">🩺</div>
+        <h3 style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">Diagnostics Inactive</h3>
+        <p style="font-size: 0.65rem; text-align: center; max-width: 11rem; margin-top: 0.2rem;">Select symptoms and run model on the left.</p>
+      `;
+    }
+
+    function runPredictionDiagnostics() {
+      if (selectedSymptomIds.length === 0) return;
+
+      const area = document.getElementById("results-display-area");
+      
+      area.innerHTML = `
+        <div style="width: 100%; display: flex; flex-direction: column; gap: 0.75rem; text-align: left;">
+          <div style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Correlating Medical Signals...</div>
+          <div class="card skeleton" style="height: 4.5rem; border-radius: 12px; box-shadow: none;"></div>
+          <div class="card skeleton" style="height: 5rem; border-radius: 12px; box-shadow: none;"></div>
+          <div class="card skeleton" style="height: 4.5rem; border-radius: 12px; box-shadow: none;"></div>
+        </div>
+      `;
+
+      setTimeout(() => {
+        // ML Inference including age/gender/duration priors modifications
+        const res = predictDiseases(selectedSymptomIds, patientAgeGroup, patientGender, patientDuration);
+        currentPredictions = res;
+        renderPredictions(res);
+        
+        document.getElementById("results-actions-area").style.display = "flex";
+        
+        const saveBtn = document.getElementById("save-report-btn");
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = `<span>💾</span> Save to Dashboard`;
+        saveBtn.className = "btn btn-primary";
+      }, 500);
+    }
+
+    function renderPredictions(preds) {
+      const area = document.getElementById("results-display-area");
+      if (!area) return;
+
+      let html = `<h2 style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.75rem; width: 100%;">Condition Probability Matches</h2>`;
+      
+      preds.forEach((pred, idx) => {
+        const topClass = idx === 0 ? "pred-card-top" : "";
+        const bulletPoints = idx === 0 
+          ? `<div style="margin-top: 0.45rem; border-top: 1px solid var(--card-border); padding-top: 0.45rem;">
+              <span style="font-size: 0.6rem; font-weight: 800; text-transform: uppercase; color: var(--text-main); display: block; margin-bottom: 0.2rem;">Care Advice</span>
+              <ul style="font-size: 0.6rem; color: var(--text-muted); list-style: disc; padding-left: 0.85rem; display: flex; flex-direction: column; gap: 0.15rem;">
+                ${pred.recommendations.slice(0, 2).map(r => `<li>${r}</li>`).join('')}
+              </ul>
+             </div>`
+          : "";
+
+        // Math log transparency audit block
+        const auditLogHtml = `
+          <details style="margin-top: 0.35rem; border-top: 1px dashed var(--card-border); padding-top: 0.35rem;">
+            <summary style="font-size: 0.55rem; color: var(--color-primary); cursor: pointer; font-weight: 700;">Mathematical Audit Trail</summary>
+            <div class="math-log-card">
+              <div><span class="math-log-title">Prior log P(D):</span> ${pred.audit.priorLog}</div>
+              <div><span class="math-log-title">Likelihood log P(S|D):</span> ${pred.audit.likelihoodLog}</div>
+              <div><span class="math-log-title">Posterior score:</span> ${pred.audit.scoreLog}</div>
+              <div><span class="math-log-title">Criteria Met:</span> ${pred.audit.matched.length > 0 ? pred.audit.matched.join(', ') : 'None'}</div>
+              <div><span class="math-log-title">Criteria Missed:</span> ${pred.audit.missed.length > 0 ? pred.audit.missed.join(', ') : 'None'}</div>
+            </div>
+          </details>
+        `;
+
+        html += `
+          <div class="pred-card ${topClass}" style="width: 100%; text-align: left; margin-bottom: 0.75rem;">
+            <div class="pred-header">
+              <span>${pred.diseaseName}</span>
+              <span class="pred-badge">${pred.confidence}% Match</span>
+            </div>
+            <div class="pred-bar-bg">
+              <div class="pred-bar-fill" style="width: ${pred.confidence}%"></div>
+            </div>
+            <p style="font-size: 0.65rem; color: var(--text-muted); line-height: 1.4;">${pred.description}</p>
+            ${bulletPoints}
+            ${auditLogHtml}
+          </div>
+        `;
+      });
+
+      html += `
+        <div class="form-group" style="width: 100%; margin-top: 0.5rem;">
+          <label class="form-label">Add Assessment Notes</label>
+          <textarea id="assessment-notes" placeholder="Type details (onset, triggers)..." class="form-input" style="height: 2.75rem; resize: none;"></textarea>
+        </div>
+      `;
+
+      area.innerHTML = html;
+    }
+
+    function saveActiveReport() {
+      if (!currentPredictions) return;
+
+      const user = db.getCurrentUser();
+      if (!user) {
+        window.location.href = "auth.html";
+        return;
+      }
+
+      const notesInput = document.getElementById("assessment-notes");
+      const notesVal = notesInput ? notesInput.value : "";
+
+      const report = db.saveReport(selectedSymptomIds, currentPredictions, notesVal);
+      if (report) {
+        activeReportObj = report;
+        const btn = document.getElementById("save-report-btn");
+        btn.disabled = true;
+        btn.innerHTML = `<span>✓</span> Saved to Dashboard`;
+        btn.className = "btn btn-secondary";
+      }
+    }
+
+    function downloadReportPDF() {
+      const user = db.getCurrentUser();
+      const userName = user ? user.name : "Guest Simulator";
+      
+      const notesInput = document.getElementById("assessment-notes");
+      const notesVal = notesInput ? notesInput.value : "";
+
+      const tempReport = activeReportObj || {
+        id: `rep_guest_${Date.now()}`,
+        date: new Date().toISOString(),
+        symptoms: selectedSymptomIds,
+        predictions: currentPredictions,
+        saved: false,
+        notes: notesVal
+      };
+
+      const symptomsList = db.getSymptoms();
+      generatePDFReport(tempReport, userName, symptomsList);
+    }
+
+    function clearChecker() {
+      selectedSymptomIds = [];
+      currentPredictions = null;
+      activeReportObj = null;
+      
+      const input = document.getElementById("symptom-search");
+      if (input) input.value = "";
+      
+      document.getElementById("results-actions-area").style.display = "none";
+      resetResultsPlaceholder();
+      updateChips();
+      selectBodyPart("all"); // Reset body map selection
+      
+      const btn = document.getElementById("predict-trigger");
+      btn.disabled = true;
+    }
+  </script>
+</body>
+</html>

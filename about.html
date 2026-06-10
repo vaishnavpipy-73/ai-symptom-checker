@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us - MediPredict AI</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Sticky Header -->
+  <div id="navbar-placeholder"></div>
+
+  <!-- Main Body Content -->
+  <main class="main-content" style="max-width: 44rem; text-align: left;">
+    
+    <!-- Title -->
+    <div style="text-align: center; max-width: 30rem; margin: 0 auto 2.5rem;">
+      <h1 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.25rem;">About MediPredict AI</h1>
+      <p style="font-size: 0.725rem; color: var(--text-muted);">
+        Clinical triage simulation parameters, technologies, and team.
+      </p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      
+      <!-- Core Vision -->
+      <section class="card bg-card" style="display: flex; flex-direction: column; gap: 0.5rem;">
+        <h2 style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Core Vision</h2>
+        <p style="font-size: 0.725rem; color: var(--text-main); line-height: 1.5;">
+          MediPredict AI is designed as a clinical triage simulator. The platform models how modern, client-side, zero-database architectures can run advanced diagnostic classifications with zero network overhead. By running models locally in client browsers, the platform eliminates server function round-trip times entirely.
+        </p>
+      </section>
+
+      <!-- ML Logic -->
+      <section class="card bg-card" style="display: flex; flex-direction: column; gap: 0.75rem;">
+        <h2 style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">
+          🧬 Naive Bayes Mathematics
+        </h2>
+        <p style="font-size: 0.725rem; color: var(--text-main); line-height: 1.5;">
+          Instead of hosting high-latency, resource-heavy Python Flask models, MediPredict AI computes predictions using a custom **Naive Bayes Classifier** in pure client-side JavaScript:
+        </p>
+        <div style="padding: 0.65rem; background-color: var(--bg-secondary); border: 1px solid var(--card-border); border-radius: 8px; font-family: monospace; font-size: 0.65rem; font-weight: 600; text-align: center; color: var(--color-primary); overflow-x: auto;">
+          ln P(D | S) = ln P(D) + ∑ ln P(s_i | D) + ∑ ln(1 - P(s_j | D))
+        </div>
+        <p style="font-size: 0.65rem; color: var(--text-muted); line-height: 1.5;">
+          By calculating conditional probability metrics in logarithmic space (log-likelihoods), the classifier prevents mathematical underflows. It applies Laplace smoothing and normalizes the results into relative percentages using a Softmax function before displaying matches.
+        </p>
+      </section>
+
+      <!-- Tech stack -->
+      <section class="card bg-card">
+        <h2 style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 1rem;">Technical Specifications</h2>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 0.75rem;">
+          <div style="background-color: var(--bg-secondary); border: 1px solid var(--card-border); padding: 0.75rem; border-radius: 12px;">
+            <h4 style="font-size: 0.7rem; font-weight: 700; color: var(--text-main);">Static Client</h4>
+            <p style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;">Vercel Optimized Static HTML</p>
+          </div>
+          <div style="background-color: var(--bg-secondary); border: 1px solid var(--card-border); padding: 0.75rem; border-radius: 12px;">
+            <h4 style="font-size: 0.7rem; font-weight: 700; color: var(--text-main);">CSS styling</h4>
+            <p style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;">Vanilla CSS variable themes</p>
+          </div>
+          <div style="background-color: var(--bg-secondary); border: 1px solid var(--card-border); padding: 0.75rem; border-radius: 12px;">
+            <h4 style="font-size: 0.7rem; font-weight: 700; color: var(--text-main);">LocalStorage DB</h4>
+            <p style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;">Simulated accounts CRUD sync</p>
+          </div>
+          <div style="background-color: var(--bg-secondary); border: 1px solid var(--card-border); padding: 0.75rem; border-radius: 12px;">
+            <h4 style="font-size: 0.7rem; font-weight: 700; color: var(--text-main);">jsPDF Compiler</h4>
+            <p style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;">In-browser PDF rendering</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Warnings notice -->
+      <div class="notice-banner" style="background-color: rgba(239, 68, 68, 0.03); border-color: rgba(239, 68, 68, 0.15); box-shadow: none;">
+        <span class="notice-icon" style="color: var(--color-danger);">⚠️</span>
+        <div class="notice-text" style="color: var(--color-danger);">
+          <span class="notice-header" style="color: var(--color-danger);">Simulation Warning</span>
+          This is an educational correlation simulator. The condition library (15 items, 30 parameters) represents standard catalog guidelines and has not been validated by medical boards.
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Sticky Footer -->
+  <footer id="footer-placeholder"></footer>
+
+  <!-- Script Imports -->
+  <script src="js/dataset.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/navbar.js"></script>
+  <script src="js/footer.js"></script>
+</body>
+</html>

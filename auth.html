@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Gate - MediPredict AI</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      font-size: 0.725rem;
+      font-weight: 700;
+      padding: 0.75rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s ease;
+    }
+    .tab-btn.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+      background-color: rgba(99, 102, 241, 0.02);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Header -->
+  <div id="navbar-placeholder"></div>
+
+  <!-- Main Body Content -->
+  <main class="main-content" style="display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 8rem);">
+    
+    <div class="card" style="width: 100%; max-width: 22rem; overflow: hidden; padding: 0; text-align: center;">
+      
+      <!-- Banner -->
+      <div style="background-color: var(--bg-secondary); padding: 1.25rem; border-bottom: 1px solid var(--card-border);">
+        <h1 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main);">Welcome Back</h1>
+        <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.15rem;">
+          Access your patient assessments and logs.
+        </p>
+      </div>
+
+      <!-- Tabs -->
+      <div style="display: flex; border-bottom: 1px solid var(--card-border);">
+        <button id="tab-signin" onclick="switchTab('signin')" class="tab-btn active">Sign In</button>
+        <button id="tab-register" onclick="switchTab('register')" class="tab-btn">Create Account</button>
+      </div>
+
+      <!-- Body -->
+      <div style="padding: 1.5rem;">
+        
+        <!-- Error Banner -->
+        <div id="auth-error-banner" style="display: none; padding: 0.65rem; margin-bottom: 1rem; font-size: 0.65rem; color: var(--color-danger); background-color: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.15); border-radius: 8px;"></div>
+
+        <form id="auth-form" onsubmit="handleAuthSubmit(event)" style="display: flex; flex-direction: column; gap: 1rem; text-align: left;">
+          
+          <div class="form-group" id="reg-name-group" style="display: none;">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="auth-name" placeholder="Dr. John Doe" class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="auth-email" placeholder="name@example.com" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="auth-password" placeholder="••••••••" class="form-input" required>
+          </div>
+
+          <button type="submit" id="auth-submit-btn" class="btn btn-primary" style="font-size: 0.65rem; padding: 0.65rem 1rem; margin-top: 0.5rem; justify-content: center;">
+            Sign In
+          </button>
+        </form>
+
+        <!-- Quick Logins -->
+        <div style="margin-top: 1.5rem; border-top: 1px solid var(--card-border); padding-top: 1rem;">
+          <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; tracking: 0.05em; display: block; margin-bottom: 0.75rem;">
+            ⚡ Quick Demo Accounts
+          </span>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+            <button onclick="handleQuickLogin('user@healthcare.com')" class="btn btn-secondary" style="font-size: 0.55rem; padding: 0.5rem 0.25rem; flex-direction: column; gap: 0.1rem; width: 100%;">
+              <strong>Patient User</strong>
+              <span style="font-size: 0.45rem; color: var(--text-muted);">user@healthcare.com</span>
+            </button>
+            <button onclick="handleQuickLogin('admin@healthcare.com')" class="btn btn-secondary" style="font-size: 0.55rem; padding: 0.5rem 0.25rem; flex-direction: column; gap: 0.1rem; width: 100%;">
+              <strong>Admin Doctor</strong>
+              <span style="font-size: 0.45rem; color: var(--text-muted);">admin@healthcare.com</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Sticky Footer -->
+  <footer id="footer-placeholder"></footer>
+
+  <!-- Script Imports -->
+  <script src="js/dataset.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/navbar.js"></script>
+  <script src="js/footer.js"></script>
+
+  <!-- Page Logic Script -->
+  <script>
+    let activeTab = "signin";
+
+    function switchTab(tab) {
+      activeTab = tab;
+      
+      const signinBtn = document.getElementById("tab-signin");
+      const registerBtn = document.getElementById("tab-register");
+      const nameGroup = document.getElementById("reg-name-group");
+      const submitBtn = document.getElementById("auth-submit-btn");
+      const error = document.getElementById("auth-error-banner");
+
+      error.style.display = "none";
+
+      if (tab === "signin") {
+        signinBtn.classList.add("active");
+        registerBtn.classList.remove("active");
+        nameGroup.style.display = "none";
+        document.getElementById("auth-name").required = false;
+        submitBtn.textContent = "Sign In";
+      } else {
+        signinBtn.classList.remove("active");
+        registerBtn.classList.add("active");
+        nameGroup.style.display = "block";
+        document.getElementById("auth-name").required = true;
+        submitBtn.textContent = "Create Account";
+      }
+    }
+
+    function handleAuthSubmit(e) {
+      e.preventDefault();
+      
+      const error = document.getElementById("auth-error-banner");
+      error.style.display = "none";
+
+      const email = document.getElementById("auth-email").value.trim();
+      const name = document.getElementById("auth-name").value.trim();
+
+      const btn = document.getElementById("auth-submit-btn");
+      btn.disabled = true;
+      btn.textContent = "Validating...";
+
+      setTimeout(() => {
+        let result;
+        if (activeTab === "signin") {
+          result = db.login(email);
+        } else {
+          result = db.register(name, email);
+        }
+
+        btn.disabled = false;
+        btn.textContent = activeTab === "signin" ? "Sign In" : "Create Account";
+
+        if (typeof result === "string") {
+          error.textContent = result;
+          error.style.display = "block";
+        } else {
+          // Success, redirect based on roles
+          if (result.role === "admin") {
+            window.location.href = "admin.html";
+          } else {
+            window.location.href = "dashboard.html";
+          }
+        }
+      }, 600);
+    }
+
+    function handleQuickLogin(email) {
+      const error = document.getElementById("auth-error-banner");
+      error.style.display = "none";
+
+      const result = db.login(email);
+      if (typeof result === "string") {
+        error.textContent = result;
+        error.style.display = "block";
+      } else {
+        if (result.role === "admin") {
+          window.location.href = "admin.html";
+        } else {
+          window.location.href = "dashboard.html";
+        }
+      }
+    }
+  </script>
+</body>
+</html>
