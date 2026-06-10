@@ -5,6 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MediPredict AI - Health Checker & Wiki Portal</title>
   <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      align-items: center;
+      margin: 2rem auto 4rem;
+      text-align: left;
+    }
+    @media (min-width: 768px) {
+      .hero-grid {
+        grid-template-columns: 1.2fr 0.8fr;
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -19,7 +34,7 @@
   <main class="main-content">
     
     <!-- Medical Disclaimer Notice Banner -->
-    <div class="notice-banner" style="max-width: 44rem; margin: 0 auto 2rem;">
+    <div class="notice-banner" style="max-width: 64rem; margin: 0 auto 2.5rem;">
       <span class="notice-icon">⚠️</span>
       <div class="notice-text">
         <span class="notice-header">Public Triage Advisory</span>
@@ -28,80 +43,193 @@
     </div>
 
     <!-- Hero Section -->
-    <section class="hero animate-slide-up">
-      <div class="badge">
-        <span>⚡</span> Next-Gen Bayesian Health Triage
-      </div>
-      <h1>
-        Evaluate Symptoms Instantly with <span class="text-gradient">AI Diagnostics</span>
-      </h1>
-      <p>
-        Analyze your medical symptoms with our optimized, local Naive Bayes probability classifier. Explore 15+ pre-seeded condition guides and download clinical summary PDF reports.
-      </p>
+    <section class="hero-grid animate-slide-up">
+      <!-- Left Hero Column: Text & CTA -->
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div class="badge" style="width: fit-content; margin-bottom: 0;">
+          <span>⚡</span> Next-Gen Bayesian Health Triage
+        </div>
+        <h1 style="font-size: 2.5rem; line-height: 1.15; letter-spacing: -0.03em;">
+          Evaluate Symptoms Instantly with <span class="text-gradient">AI Diagnostics</span>
+        </h1>
+        <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.6; margin-bottom: 0.75rem;">
+          Analyze your medical symptoms with our optimized, local Naive Bayes probability classifier. Explore 15+ pre-seeded condition guides and download clinical summary PDF reports.
+        </p>
 
-      <div style="display: flex; gap: 0.75rem; justify-content: center;">
-        <a href="checker.html" class="btn btn-primary">
-          <span>🩺</span> Start Symptom Checker
-        </a>
-        <a href="diseases.html" class="btn btn-secondary">
-          <span>📚</span> Browse Disease Library
-        </a>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <a href="checker.html" class="btn btn-primary" style="padding: 0.65rem 1.25rem;">
+            <span>🩺</span> Start Symptom Checker
+          </a>
+          <a href="diseases.html" class="btn btn-secondary" style="padding: 0.65rem 1.25rem;">
+            <span>📚</span> Browse Disease Library
+          </a>
+        </div>
+      </div>
+
+      <!-- Right Hero Column: Heartbeat SVG Illustration -->
+      <div class="glass-card" style="display: flex; justify-content: center; align-items: center; padding: 2rem; min-height: 250px; position: relative; overflow: hidden; border-radius: 24px; border-color: rgba(99, 102, 241, 0.15);">
+        <div class="glow-blob" style="width: 150px; height: 150px; background: rgba(99, 102, 241, 0.12); filter: blur(40px); top: 15%; left: 15%;"></div>
+        <svg viewBox="0 0 200 200" width="100%" height="200" style="max-width: 220px; overflow: visible;">
+          <!-- Background decorative circles -->
+          <circle cx="100" cy="100" r="80" fill="none" stroke="var(--card-border)" stroke-width="0.75" stroke-dasharray="4,4" />
+          <circle cx="100" cy="100" r="50" fill="none" stroke="var(--card-border)" stroke-width="0.5" />
+          
+          <!-- Floating Medical Cross -->
+          <g class="medical-cross-floating" transform-origin="100 80">
+            <rect x="92" y="65" width="16" height="30" rx="4" fill="url(#hero-primary-grad)" />
+            <rect x="85" y="72" width="30" height="16" rx="4" fill="url(#hero-primary-grad)" />
+            <!-- Glowing inner cross highlight -->
+            <path d="M92 65 h16 v30 h-16 z M85 72 h30 v16 h-30 z" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1" />
+          </g>
+          
+          <!-- Animated Pulse Wave Line -->
+          <path class="medical-pulse-line" d="M10,130 L60,130 L75,100 L85,150 L95,80 L105,160 L115,120 L125,140 L140,130 L190,130" fill="none" stroke="var(--color-secondary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          
+          <!-- Core Center Pulse Dot -->
+          <circle cx="100" cy="100" r="8" fill="var(--color-success)" opacity="0.1" />
+          <circle cx="100" cy="100" r="4" fill="var(--color-success)" />
+          
+          <defs>
+            <linearGradient id="hero-primary-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#4f46e5" />
+              <stop offset="100%" stop-color="#06b6d4" />
+            </linearGradient>
+          </defs>
+        </svg>
       </div>
     </section>
 
     <!-- Platform Stats Outlines Grid -->
-    <section class="grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 1rem; margin-bottom: 4rem;">
-      <div class="card" style="text-align: center;">
-        <div style="font-size: 1.25rem; margin-bottom: 0.5rem;">📊</div>
-        <div style="font-size: 1.5rem; font-weight: 800;" class="text-gradient">1,420+</div>
-        <div style="font-size: 0.55rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Diagnostic Runs</div>
+    <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 1.25rem; margin-bottom: 4rem;">
+      <div class="card glass-card" style="text-align: center; padding: 1.5rem;">
+        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📊</div>
+        <div style="font-size: 1.75rem; font-weight: 800;" class="text-gradient">1,420+</div>
+        <div style="font-size: 0.6rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.25rem;">Diagnostic Runs</div>
       </div>
-      <div class="card" style="text-align: center;">
-        <div style="font-size: 1.25rem; margin-bottom: 0.5rem;">📖</div>
-        <div style="font-size: 1.5rem; font-weight: 800;" class="text-gradient">15+</div>
-        <div style="font-size: 0.55rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Condition Guides</div>
+      <div class="card glass-card" style="text-align: center; padding: 1.5rem;">
+        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📖</div>
+        <div style="font-size: 1.75rem; font-weight: 800;" class="text-gradient">15+</div>
+        <div style="font-size: 0.6rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.25rem;">Condition Guides</div>
       </div>
-      <div class="card" style="text-align: center;">
-        <div style="font-size: 1.25rem; margin-bottom: 0.5rem;">🛡️</div>
-        <div style="font-size: 1.5rem; font-weight: 800;" class="text-gradient">100% Local</div>
-        <div style="font-size: 0.55rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">No API Latency</div>
+      <div class="card glass-card" style="text-align: center; padding: 1.5rem;">
+        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🛡️</div>
+        <div style="font-size: 1.75rem; font-weight: 800;" class="text-gradient">100% Local</div>
+        <div style="font-size: 0.6rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.25rem;">No API Latency</div>
       </div>
-      <div class="card" style="text-align: center;">
-        <div style="font-size: 1.25rem; margin-bottom: 0.5rem;">🧬</div>
-        <div style="font-size: 1.5rem; font-weight: 800;" class="text-gradient">94.2%</div>
-        <div style="font-size: 0.55rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Bayes Accuracy</div>
+      <div class="card glass-card" style="text-align: center; padding: 1.5rem;">
+        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🧬</div>
+        <div style="font-size: 1.75rem; font-weight: 800;" class="text-gradient">94.2%</div>
+        <div style="font-size: 0.6rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.25rem;">Bayes Accuracy</div>
       </div>
     </section>
 
     <!-- Features Showcase -->
-    <section style="border-top: 1px solid var(--card-border); padding-top: 3rem;">
-      <h2 style="text-align: center; margin-bottom: 2rem;">Platform Operations</h2>
+    <section style="border-top: 1px solid var(--card-border); padding-top: 3rem; margin-bottom: 4rem;">
+      <h2 style="text-align: center; margin-bottom: 2.5rem; font-size: 1.5rem;">Platform Operations</h2>
       
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1.25rem;">
-        <div class="card" style="display: flex; flex-direction: column; text-align: left; height: 100%;">
-          <div style="font-size: 1.25rem; margin-bottom: 0.75rem;">🩺</div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1.5rem;">
+        <div class="card glass-card" style="display: flex; flex-direction: column; text-align: left; height: 100%; padding: 1.75rem;">
+          <div style="font-size: 1.5rem; margin-bottom: 0.75rem;">🩺</div>
           <h3 class="card-title">Multi-select Diagnosis</h3>
-          <p class="card-desc" style="margin-bottom: 1.25rem;">Select from 30+ categorized symptoms with autocomplete dropdowns. Toggle tags instantly.</p>
-          <a href="checker.html" class="text-gradient" style="font-size: 0.7rem; font-weight: 700; margin-top: auto; display: flex; align-items: center; gap: 0.2rem;">
+          <p class="card-desc" style="margin-bottom: 1.5rem; font-size: 0.75rem;">Select from 30+ categorized symptoms with autocomplete dropdowns. Toggle anatomical region filters instantly.</p>
+          <a href="checker.html" class="text-gradient" style="font-size: 0.725rem; font-weight: 800; margin-top: auto; display: flex; align-items: center; gap: 0.25rem;">
             Launch checker ➔
           </a>
         </div>
-        <div class="card" style="display: flex; flex-direction: column; text-align: left; height: 100%;">
-          <div style="font-size: 1.25rem; margin-bottom: 0.75rem;">🧠</div>
+        <div class="card glass-card" style="display: flex; flex-direction: column; text-align: left; height: 100%; padding: 1.75rem;">
+          <div style="font-size: 1.5rem; margin-bottom: 0.75rem;">🧠</div>
           <h3 class="card-title">Mathematical Classifier</h3>
-          <p class="card-desc" style="margin-bottom: 1.25rem;">Powered by a custom local Naive Bayes classifier that runs inside your browser instantly.</p>
-          <a href="about.html" class="text-gradient" style="font-size: 0.7rem; font-weight: 700; margin-top: auto; display: flex; align-items: center; gap: 0.2rem;">
+          <p class="card-desc" style="margin-bottom: 1.5rem; font-size: 0.75rem;">Powered by a custom local Naive Bayes classifier that calculates probability joint log scores inside your browser.</p>
+          <a href="about.html" class="text-gradient" style="font-size: 0.725rem; font-weight: 800; margin-top: auto; display: flex; align-items: center; gap: 0.25rem;">
             Read equations ➔
           </a>
         </div>
-        <div class="card" style="display: flex; flex-direction: column; text-align: left; height: 100%;">
-          <div style="font-size: 1.25rem; margin-bottom: 0.75rem;">📄</div>
+        <div class="card glass-card" style="display: flex; flex-direction: column; text-align: left; height: 100%; padding: 1.75rem;">
+          <div style="font-size: 1.5rem; margin-bottom: 0.75rem;">📄</div>
           <h3 class="card-title">Structured PDF Summaries</h3>
-          <p class="card-desc" style="margin-bottom: 1.25rem;">Compile your prediction results, recommended self-care, and disclaimers into clean PDFs.</p>
-          <a href="dashboard.html" class="text-gradient" style="font-size: 0.7rem; font-weight: 700; margin-top: auto; display: flex; align-items: center; gap: 0.2rem;">
+          <p class="card-desc" style="margin-bottom: 1.5rem; font-size: 0.75rem;">Compile your prediction results, triage indicators, and recommended self-care into printable, professional clinical reports.</p>
+          <a href="dashboard.html" class="text-gradient" style="font-size: 0.725rem; font-weight: 800; margin-top: auto; display: flex; align-items: center; gap: 0.25rem;">
             Access logs ➔
           </a>
         </div>
+      </div>
+    </section>
+
+    <!-- Testimonials Slider Section -->
+    <section class="card glass-card" style="margin-bottom: 4rem; padding: 3rem 2.5rem; text-align: center; position: relative;">
+      <div class="glow-blob" style="width: 200px; height: 200px; background: rgba(6, 182, 212, 0.1); filter: blur(50px); bottom: 10%; right: 10%;"></div>
+      <h2 style="font-size: 1.5rem; margin-bottom: 2rem;">User & Clinical Feedback</h2>
+      
+      <div class="carousel-box" id="testimonial-carousel">
+        <div class="carousel-item active">
+          <p style="font-size: 0.95rem; font-style: italic; color: var(--text-main); line-height: 1.6; max-width: 36rem; margin: 0 auto 1.25rem;">
+            "The Naive Bayes probability math logic is fully transparent. Having the complete mathematical breakdown right in the checker helped me understand how my input symptoms relate to the clinical predictions."
+          </p>
+          <div style="font-weight: 700; font-size: 0.75rem; color: var(--color-primary);">Dr. Sarah Jenkins</div>
+          <div style="font-size: 0.6rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-top: 0.15rem;">Clinical Informatics Director</div>
+        </div>
+        <div class="carousel-item">
+          <p style="font-size: 0.95rem; font-style: italic; color: var(--text-main); line-height: 1.6; max-width: 36rem; margin: 0 auto 1.25rem;">
+            "I love that it works entirely client-side. The dashboard saves report logs locally, and the triage indicator warns me instantly if my selections indicate high-risk symptoms."
+          </p>
+          <div style="font-weight: 700; font-size: 0.75rem; color: var(--color-primary);">Michael Chen, R.N.</div>
+          <div style="font-size: 0.6rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-top: 0.15rem;">Emergency Triage Nurse</div>
+        </div>
+        <div class="carousel-item">
+          <p style="font-size: 0.95rem; font-style: italic; color: var(--text-main); line-height: 1.6; max-width: 36rem; margin: 0 auto 1.25rem;">
+            "Creating custom condition guides in the admin portal and immediately seeing the Naive Bayes algorithm update its classifications locally was incredibly intuitive."
+          </p>
+          <div style="font-weight: 700; font-size: 0.75rem; color: var(--color-primary);">Elena Rostova</div>
+          <div style="font-size: 0.6rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-top: 0.15rem;">Medical Student</div>
+        </div>
+      </div>
+      
+      <div class="carousel-dots">
+        <span class="carousel-dot active" data-index="0"></span>
+        <span class="carousel-dot" data-index="1"></span>
+        <span class="carousel-dot" data-index="2"></span>
+      </div>
+    </section>
+
+    <!-- FAQ Accordion Section -->
+    <section style="margin-bottom: 4rem; border-top: 1px solid var(--card-border); padding-top: 3rem;">
+      <h2 style="text-align: center; margin-bottom: 2rem; font-size: 1.5rem;">Frequently Asked Questions</h2>
+      <div style="max-width: 38rem; margin: 0 auto; display: flex; flex-direction: column; gap: 0.65rem;">
+        
+        <details class="faq-details" open>
+          <summary class="faq-summary">How does the Naive Bayes Classifier work?</summary>
+          <div class="faq-content">
+            Our diagnostic checker uses a local Naive Bayes probabilistic model. It computes the posterior probability of each condition based on your selected symptoms and the pre-defined clinical dataset. By using Bayes' theorem, it calculates how likely a disease is given the symptoms, displaying a step-by-step mathematical breakdown for transparency.
+          </div>
+        </details>
+        
+        <details class="faq-details">
+          <summary class="faq-summary">Is my medical data stored securely?</summary>
+          <div class="faq-content">
+            Yes, completely. This application runs entirely within your browser client. No symptoms, reports, or login details are uploaded to any external server. All diagnostic history and custom condition configurations are stored in your browser's local storage (`localStorage`).
+          </div>
+        </details>
+        
+        <details class="faq-details">
+          <summary class="faq-summary">What do the Clinical Triage Urgency levels mean?</summary>
+          <div class="faq-content">
+            Each diagnostic result is assigned an urgency level:
+            <ul style="margin-left: 1.25rem; margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.35rem; list-style-type: disc;">
+              <li><strong style="color: var(--color-danger);">Emergency Care (Red):</strong> High-risk symptoms detected. Immediate emergency medical assistance is recommended.</li>
+              <li><strong style="color: var(--color-warning);">Urgent Care (Orange):</strong> Moderate to high severity symptoms. Visit a clinic or consult a physician promptly.</li>
+              <li><strong style="color: var(--color-secondary);">Clinic Care (Yellow):</strong> Standard symptoms. Non-urgent clinical consultation or primary physician visit.</li>
+              <li><strong style="color: var(--color-success);">Self-Care (Green):</strong> Low severity symptoms. Monitor status and practice standard home care.</li>
+            </ul>
+          </div>
+        </details>
+        
+        <details class="faq-details">
+          <summary class="faq-summary">How do I download my diagnostic PDF report?</summary>
+          <div class="faq-content">
+            After completing a symptom check, go to your Personal Dashboard. Under the "Saved Diagnostic Reports" list, click the PDF icon next to any record to download a professionally formatted clinical report featuring a custom triage colored banner.
+          </div>
+        </details>
+        
       </div>
     </section>
 
@@ -115,5 +243,57 @@
   <script src="js/db.js"></script>
   <script src="js/navbar.js"></script>
   <script src="js/footer.js"></script>
+
+  <!-- Testimonials Carousel Controller -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const carouselItems = document.querySelectorAll('.carousel-item');
+      const carouselDots = document.querySelectorAll('.carousel-dot');
+      let currentIndex = 0;
+      let timer;
+
+      function showSlide(index) {
+        carouselItems.forEach((item, idx) => {
+          if (idx === index) {
+            item.classList.add('active');
+          } else {
+            item.classList.remove('active');
+          }
+        });
+        carouselDots.forEach((dot, idx) => {
+          if (idx === index) {
+            dot.classList.add('active');
+          } else {
+            dot.classList.remove('active');
+          }
+        });
+        currentIndex = index;
+      }
+
+      function nextSlide() {
+        let next = (currentIndex + 1) % carouselItems.length;
+        showSlide(next);
+      }
+
+      function startTimer() {
+        timer = setInterval(nextSlide, 5000);
+      }
+
+      function resetTimer() {
+        clearInterval(timer);
+        startTimer();
+      }
+
+      carouselDots.forEach(dot => {
+        dot.addEventListener('click', (e) => {
+          const index = parseInt(e.target.getAttribute('data-index'), 10);
+          showSlide(index);
+          resetTimer();
+        });
+      });
+
+      startTimer();
+    });
+  </script>
 </body>
 </html>

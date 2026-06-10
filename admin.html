@@ -65,22 +65,26 @@
 
     <!-- Metrics Cards Row -->
     <div class="admin-metrics">
-      <div class="card" style="text-align: left;">
+      <div class="card glass-card" style="text-align: left; position: relative;">
+        <div style="position: absolute; top: 0.75rem; right: 0.75rem; width: 6px; height: 6px; background-color: var(--color-success); border-radius: 50%; box-shadow: 0 0 8px var(--color-success);"></div>
         <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; tracking: 0.05em;">Total Users</span>
         <div style="font-size: 1.5rem; font-weight: 800; margin-top: 0.25rem;" id="metric-users">0</div>
         <p style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;">Registered simulated accounts</p>
       </div>
-      <div class="card" style="text-align: left;">
+      <div class="card glass-card" style="text-align: left; position: relative;">
+        <div style="position: absolute; top: 0.75rem; right: 0.75rem; width: 6px; height: 6px; background-color: var(--color-primary); border-radius: 50%; box-shadow: 0 0 8px var(--color-primary);"></div>
         <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; tracking: 0.05em;">Predictions Run</span>
         <div style="font-size: 1.5rem; font-weight: 800; margin-top: 0.25rem;" id="metric-predictions">0</div>
         <p style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;">Inference classifier runs</p>
       </div>
-      <div class="card" style="text-align: left;">
+      <div class="card glass-card" style="text-align: left; position: relative;">
+        <div style="position: absolute; top: 0.75rem; right: 0.75rem; width: 6px; height: 6px; background-color: var(--color-success); border-radius: 50%; box-shadow: 0 0 8px var(--color-success);"></div>
         <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; tracking: 0.05em;">Diseases List</span>
         <div style="font-size: 1.5rem; font-weight: 800; margin-top: 0.25rem;" id="metric-diseases">0</div>
         <p style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;">Active diagnostic guides</p>
       </div>
-      <div class="card" style="text-align: left;">
+      <div class="card glass-card" style="text-align: left; position: relative;">
+        <div style="position: absolute; top: 0.75rem; right: 0.75rem; width: 6px; height: 6px; background-color: var(--color-success); border-radius: 50%; box-shadow: 0 0 8px var(--color-success);"></div>
         <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; tracking: 0.05em;">Symptoms List</span>
         <div style="font-size: 1.5rem; font-weight: 800; margin-top: 0.25rem;" id="metric-symptoms">0</div>
         <p style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;">Audited indicators</p>
@@ -88,6 +92,11 @@
     </div>
 
     <!-- Core Admin Layout Container -->
+    <button class="admin-drawer-toggle" onclick="toggleAdminSidebar()">
+      <span>📁 System Directory Navigation</span>
+      <span>▼</span>
+    </button>
+
     <div class="admin-grid">
       
       <!-- Sidebar Navigation (Left Column) -->
@@ -622,8 +631,20 @@
       box.innerHTML = html;
     }
 
+    function toggleAdminSidebar() {
+      const sidebar = document.querySelector(".admin-sidebar");
+      if (sidebar) {
+        sidebar.classList.toggle("open");
+      }
+    }
+
     function switchAdminTab(tab) {
       activeTab = tab;
+      
+      const sidebar = document.querySelector(".admin-sidebar");
+      if (sidebar) {
+        sidebar.classList.remove("open");
+      }
       
       const tabs = ["analytics", "symptoms", "diseases", "users"];
       tabs.forEach(t => {

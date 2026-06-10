@@ -73,8 +73,8 @@
     <div class="dashboard-layout">
       
       <!-- History Table List (Left Column) -->
-      <div class="card" style="text-align: left; display: flex; flex-direction: column;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-b: 1px solid var(--card-border);">
+      <div class="card glass-card" style="text-align: left; display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--card-border);">
           <h2 style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Assessment Logs</h2>
           <div style="display: flex; align-items: center; gap: 0.5rem;">
             <input 
@@ -92,17 +92,24 @@
 
       <!-- Analytics Chart Column (Right Column) -->
       <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-        <div class="card" style="text-align: left; height: fit-content;" id="trends-card">
+        
+        <!-- Health Insights Widget -->
+        <div class="card glass-card" style="text-align: left;" id="insights-card">
+          <h3 style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 0.75rem;">Health Insights Advice</h3>
+          <div id="insights-box"></div>
+        </div>
+
+        <div class="card glass-card" style="text-align: left; height: fit-content;" id="trends-card">
           <h3 style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 1rem;">Primary Matches</h3>
           <div id="trends-list-box" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
         </div>
 
-        <div class="card" style="text-align: left;" id="volume-chart-card">
+        <div class="card glass-card" style="text-align: left;" id="volume-chart-card">
           <h3 style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 1rem;">Assessment Volume</h3>
           <div id="volume-chart-box"></div>
         </div>
 
-        <div class="card" style="text-align: left;" id="distribution-chart-card">
+        <div class="card glass-card" style="text-align: left;" id="distribution-chart-card">
           <h3 style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 1rem;">Condition Share</h3>
           <div id="distribution-chart-box" style="display: flex; flex-direction: column; gap: 1rem;"></div>
         </div>
@@ -161,6 +168,7 @@
       renderTrends();
       renderVolumeChart();
       renderDistributionChart();
+      renderHealthInsights();
     }
 
     function renderStats() {
@@ -178,25 +186,111 @@
       if (!box) return;
 
       box.innerHTML = `
-        <div class="card" style="text-align: left;">
+        <div class="card glass-card" style="text-align: left;">
           <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Total Runs</span>
           <div style="font-size: 1.5rem; font-weight: 800; margin-top: 0.25rem;">${totalCount}</div>
           <p style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;">Completed checks</p>
         </div>
-        <div class="card" style="text-align: left;">
+        <div class="card glass-card" style="text-align: left;">
           <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Saved Reports</span>
           <div style="font-size: 1.5rem; font-weight: 800; margin-top: 0.25rem;">${savedCount}</div>
           <p style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;">Bookmarked assessments</p>
         </div>
-        <div class="card" style="text-align: left;">
+        <div class="card glass-card" style="text-align: left;">
           <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Symptoms Audited</span>
           <div style="font-size: 1.5rem; font-weight: 800; margin-top: 0.25rem;">${uniqueSymptoms}</div>
           <p style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;">Distinct indicators</p>
         </div>
-        <div class="card" style="text-align: left;">
+        <div class="card glass-card" style="text-align: left;">
           <span style="font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Latest Suggestion</span>
           <div style="font-size: 1.15rem; font-weight: 800; margin-top: 0.45rem;" class="text-gradient">${latestResult}</div>
           <p style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.15rem;">Top probability match</p>
+        </div>
+      `;
+    }
+
+    function renderHealthInsights() {
+      const box = document.getElementById("insights-box");
+      if (!box) return;
+
+      const reports = db.getReports();
+      if (reports.length === 0) {
+        box.innerHTML = `
+          <div class="notice-banner" style="background-color: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.2); color: var(--color-primary); padding: 0.75rem;">
+            <span class="notice-icon">💡</span>
+            <div class="notice-text">
+              <span class="notice-header" style="color: var(--color-primary);">Insight: Empty Profile</span>
+              You haven't run any symptom checker evaluations yet. Run your first triage assessment to generate clinical insights.
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // Analyze triage distributions
+      let emergencyCount = 0;
+      let urgentCount = 0;
+      let clinicCount = 0;
+      let selfCareCount = 0;
+
+      reports.forEach(r => {
+        const triage = calculateTriageUrgency(r.symptoms);
+        if (triage.label === "Emergency") emergencyCount++;
+        else if (triage.label === "Urgent") urgentCount++;
+        else if (triage.label === "Clinic") clinicCount++;
+        else if (triage.label === "Self-Care") selfCareCount++;
+      });
+
+      let adviceHtml = "";
+      if (emergencyCount > 0) {
+        adviceHtml = `
+          <div class="notice-banner" style="background-color: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--color-danger); padding: 0.75rem;">
+            <span class="notice-icon">🚨</span>
+            <div class="notice-text">
+              <span class="notice-header" style="color: var(--color-danger); font-size: 0.6rem;">Attention Required</span>
+              You have <b>${emergencyCount}</b> diagnostic log(s) flagged as <b>Emergency</b>. Ensure you seek professional clinical care.
+            </div>
+          </div>
+        `;
+      } else if (urgentCount > 0) {
+        adviceHtml = `
+          <div class="notice-banner" style="background-color: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.2); color: var(--color-warning); padding: 0.75rem;">
+            <span class="notice-icon">⚠️</span>
+            <div class="notice-text">
+              <span class="notice-header" style="color: var(--color-warning); font-size: 0.6rem;">Urgent Advisory</span>
+              You have <b>${urgentCount}</b> diagnostic log(s) categorized as <b>Urgent Care</b>. A prompt consultation is recommended.
+            </div>
+          </div>
+        `;
+      } else {
+        adviceHtml = `
+          <div class="notice-banner" style="background-color: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); color: var(--color-success); padding: 0.75rem;">
+            <span class="notice-icon">💚</span>
+            <div class="notice-text">
+              <span class="notice-header" style="color: var(--color-success); font-size: 0.6rem;">Stable Status</span>
+              Your diagnostic log history falls within <b>Clinic</b> or <b>Self-Care</b>. Continue monitoring symptoms and practicing standard health precautions.
+            </div>
+          </div>
+        `;
+      }
+
+      // Add general stats insights
+      const topPred = reports[0].predictions[0];
+      const insightCard = `
+        <div style="font-size: 0.65rem; color: var(--text-muted); line-height: 1.4; display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.5rem;">
+          <div>
+            Your latest checked symptom pattern matched <b>${topPred ? topPred.diseaseName : 'N/A'}</b> with a confidence of <b>${topPred ? topPred.confidence : 0}%</b>.
+          </div>
+          <div style="font-size: 0.55rem; border-top: 1px solid var(--card-border); padding-top: 0.4rem; font-style: italic;">
+            *Disclaimer: This simulator analyses mathematical correlations. These stats do not reflect actual disease prevalence.
+          </div>
+        </div>
+      `;
+
+      box.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+          ${adviceHtml}
+          ${insightCard}
         </div>
       `;
     }

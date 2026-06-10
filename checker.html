@@ -27,6 +27,22 @@
       background-color: var(--bg-secondary);
       color: var(--color-primary);
     }
+    @keyframes slideInFade {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .chip {
+      animation: slideInFade 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    .skeleton {
+      background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--card-border) 50%, var(--bg-secondary) 75%);
+      background-size: 200% 100%;
+      animation: loading-shimmer 1.5s infinite;
+    }
+    @keyframes loading-shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
   </style>
 </head>
 <body>
@@ -58,7 +74,7 @@
     <div class="checker-layout">
       
       <!-- Column 1: Clickable SVG Anatomical Human body map (Left) -->
-      <div class="card" style="text-align: center; display: flex; flex-direction: column; gap: 0.75rem;">
+      <div class="card glass-card" style="text-align: center; display: flex; flex-direction: column; gap: 0.75rem;">
         <span class="form-label" style="text-align: center; display: block; margin-bottom: 0.25rem;">Anatomical Filter</span>
         
         <!-- Toggle Control -->
@@ -141,7 +157,7 @@
       </div>
       
       <!-- Column 2: Autocomplete Inputs & Risk Controls (Middle) -->
-      <div class="card" style="text-align: left; display: flex; flex-direction: column; gap: 1.25rem;">
+      <div class="card glass-card" style="text-align: left; display: flex; flex-direction: column; gap: 1.25rem;">
         
         <!-- Risk Parameters Box -->
         <div style="display: flex; flex-direction: column; gap: 0.75rem; background-color: rgba(241, 245, 249, 0.2); border: 1px solid var(--card-border); padding: 1rem; border-radius: 14px;">
@@ -181,13 +197,16 @@
         <!-- Autocomplete Search -->
         <div class="form-group" style="position: relative;">
           <label class="form-label">Search / Type Symptoms</label>
-          <div class="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div style="position: relative; width: 100%;">
+            <svg style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); width: 0.9rem; height: 0.9rem; pointer-events: none; opacity: 0.5;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
             <input 
               type="text" 
               id="symptom-search" 
               placeholder="Type e.g., Cough, Headache, Fever..." 
               class="form-input"
+              style="padding-left: 2.2rem;"
               oninput="handleSearchInput(this.value)"
               onfocus="toggleSuggestions(true)"
             >
@@ -222,7 +241,7 @@
       </div>
 
       <!-- Column 3: Diagnostic Results & Math Breakdown (Right) -->
-      <div class="card" style="text-align: left; display: flex; flex-direction: column; justify-content: space-between; min-height: 25rem;" id="results-card">
+      <div class="card glass-card" style="text-align: left; display: flex; flex-direction: column; justify-content: space-between; min-height: 25rem;" id="results-card">
         
         <!-- Results area -->
         <div id="results-display-area" style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--text-muted);">
